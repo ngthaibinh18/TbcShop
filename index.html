@@ -1,144 +1,371 @@
-import { Wallet, AlertTriangle, Crown, Sparkles, Bell } from 'lucide-react';
-import { CustomerPackage } from '../types';
-import { calculateExpiry, formatCurrencyVND } from '../utils/dateUtils';
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TbcShop - Quản Lý Khách Hàng</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen p-4 sm:p-6 lg:p-8">
 
-interface StatsCardsProps {
-  customers: CustomerPackage[];
-  onFilterUrgent: () => void;
-}
-
-export function StatsCards({ customers, onFilterUrgent }: StatsCardsProps) {
-  let totalRevenue = 0;
-  let activePackages = 0;
-  let urgentCount = 0;
-  let vipCount = 0;
-  let vipRevenue = 0;
-  let newCount = 0;
-  let newRevenue = 0;
-
-  customers.forEach((cust) => {
-    const price = Number(cust.price) || 0;
-    totalRevenue += price;
-
-    const exp = calculateExpiry(cust.end_date);
-    if (!exp.isExpired) {
-      activePackages++;
-    }
-    if (exp.isExpiringSoon) {
-      urgentCount++;
-    }
-
-    if (cust.customer_type === 'VIP') {
-      vipCount++;
-      vipRevenue += price;
-    } else if (cust.customer_type === 'MOI') {
-      newCount++;
-      newRevenue += price;
-    }
-  });
-
-  return (
-    <div className="space-y-4">
-      {/* 4 Cards Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        
-        {/* Card 1: Tổng doanh thu */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center space-x-3.5">
-          <div className="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-            <Wallet className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs font-medium text-slate-500">Tổng doanh thu</p>
-            <h3 className="text-lg sm:text-xl font-bold text-slate-900 mt-0.5">
-              {formatCurrencyVND(totalRevenue)}
-            </h3>
-            <p className="text-[11px] text-emerald-600 font-semibold">
-              {activePackages} gói đang chạy
-            </p>
-          </div>
-        </div>
-
-        {/* Card 2: Cảnh báo sắp hết hạn (≤ 3 ngày - MÀU ĐỎ) */}
-        <div 
-          onClick={onFilterUrgent}
-          className="bg-rose-50/80 p-4 rounded-xl border-2 border-rose-300 shadow-xs flex items-center space-x-3.5 cursor-pointer hover:bg-rose-100/60 transition group"
-          title="Nhấp để xem các khách hàng sắp hết hạn"
-        >
-          <div className="w-12 h-12 rounded-lg bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition">
-            <AlertTriangle className="w-6 h-6 animate-pulse" />
-          </div>
-          <div>
-            <p className="text-xs font-bold text-rose-700 uppercase tracking-wide">
-              Sắp hết hạn (≤ 3 ngày)
-            </p>
-            <h3 className="text-lg sm:text-xl font-extrabold text-rose-700 mt-0.5">
-              {urgentCount} khách hàng
-            </h3>
-            <p className="text-[11px] text-rose-600 font-semibold flex items-center space-x-1">
-              <span>Cần báo gia hạn ngay</span>
-              <span className="underline group-hover:text-rose-800">→ Lọc</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Card 3: Khách VIP */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center space-x-3.5">
-          <div className="w-12 h-12 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-            <Crown className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs font-medium text-slate-500">Khách VIP</p>
-            <h3 className="text-lg sm:text-xl font-bold text-slate-900 mt-0.5">
-              {vipCount} khách
-            </h3>
-            <p className="text-[11px] text-amber-600 font-medium">
-              {formatCurrencyVND(vipRevenue)} doanh thu
-            </p>
-          </div>
-        </div>
-
-        {/* Card 4: Khách Mới */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center space-x-3.5">
-          <div className="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-            <Sparkles className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs font-medium text-slate-500">Khách Mới</p>
-            <h3 className="text-lg sm:text-xl font-bold text-slate-900 mt-0.5">
-              {newCount} khách
-            </h3>
-            <p className="text-[11px] text-blue-600 font-medium">
-              {formatCurrencyVND(newRevenue)} doanh thu
-            </p>
-          </div>
-        </div>
-
+  <div class="max-w-6xl mx-auto space-y-6">
+    <!-- Header -->
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-slate-200 gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 flex items-center gap-2">
+          <span class="p-2 bg-indigo-600 text-white rounded-lg shadow-sm">
+            <i data-lucide="shield-check" class="w-6 h-6"></i>
+          </span>
+          TbcShop Admin
+        </h1>
+        <p class="text-sm text-slate-500 mt-1">Hệ thống theo dõi hạn dùng & gia hạn tài khoản</p>
       </div>
 
-      {/* BANNER CẢNH BÁO ĐỎ KHI CÓ KHÁCH SẮP HẾT HẠN TRONG 3 NGÀY */}
-      {urgentCount > 0 && (
-        <div className="bg-gradient-to-r from-rose-600 to-rose-700 text-white p-4 rounded-xl shadow-md flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-white">
-              <Bell className="w-5 h-5 animate-bounce" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm sm:text-base">
-                Cảnh Báo: Có {urgentCount} khách hàng sắp hết hạn trong 3 ngày tới!
-              </h4>
-              <p className="text-xs text-rose-100 mt-0.5">
-                Các gói này đã được tô đỏ trong danh sách bên dưới để tiện liên hệ nhắn Zalo/SMS nhắc gia hạn.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onFilterUrgent}
-            className="px-3.5 py-1.5 bg-white text-rose-700 font-bold text-xs rounded-lg hover:bg-rose-50 shadow-sm transition shrink-0 ml-3"
-          >
-            Lọc Danh Sách Đỏ
-          </button>
+      <div class="flex gap-2 w-full sm:w-auto">
+        <button onclick="toggleForm()" class="flex-1 sm:flex-none px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl text-sm shadow-sm flex items-center justify-center gap-2 transition">
+          <i data-lucide="user-plus" class="w-4 h-4"></i> Thêm Khách Hàng
+        </button>
+      </div>
+    </header>
+
+    <!-- 4 Stats Cards Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <!-- Card 1: Tổng doanh thu -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3.5">
+        <div class="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+          <i data-lucide="wallet" class="w-6 h-6"></i>
         </div>
-      )}
+        <div>
+          <p class="text-xs font-medium text-slate-500">Tổng doanh thu</p>
+          <h3 id="statRevenue" class="text-lg sm:text-xl font-bold text-slate-900 mt-0.5">0 ₫</h3>
+          <p id="statActive" class="text-[11px] text-emerald-600 font-semibold">0 gói đang chạy</p>
+        </div>
+      </div>
+
+      <!-- Card 2: Sắp hết hạn (<= 3 ngày) -->
+      <div onclick="filterUrgentOnly()" class="bg-rose-50/80 p-4 rounded-xl border-2 border-rose-300 shadow-sm flex items-center space-x-3.5 cursor-pointer hover:bg-rose-100/60 transition group" title="Nhấp để lọc danh sách đỏ">
+        <div class="w-12 h-12 rounded-lg bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition">
+          <i data-lucide="alert-triangle" class="w-6 h-6 animate-pulse"></i>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-rose-700 uppercase tracking-wide">Sắp hết hạn (≤ 3 ngày)</p>
+          <h3 id="statUrgent" class="text-lg sm:text-xl font-extrabold text-rose-700 mt-0.5">0 khách hàng</h3>
+          <p class="text-[11px] text-rose-600 font-semibold flex items-center space-x-1">
+            <span>Cần báo gia hạn</span>
+            <span class="underline group-hover:text-rose-800">→ Lọc</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 3: Khách VIP -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3.5">
+        <div class="w-12 h-12 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+          <i data-lucide="crown" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-xs font-medium text-slate-500">Khách VIP</p>
+          <h3 id="statVipCount" class="text-lg sm:text-xl font-bold text-slate-900 mt-0.5">0 khách</h3>
+          <p id="statVipRev" class="text-[11px] text-amber-600 font-medium">0 ₫ doanh thu</p>
+        </div>
+      </div>
+
+      <!-- Card 4: Khách Mới -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3.5">
+        <div class="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+          <i data-lucide="sparkles" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-xs font-medium text-slate-500">Khách Mới</p>
+          <h3 id="statNewCount" class="text-lg sm:text-xl font-bold text-slate-900 mt-0.5">0 khách</h3>
+          <p id="statNewRev" class="text-[11px] text-blue-600 font-medium">0 ₫ doanh thu</p>
+        </div>
+      </div>
     </div>
-  );
-}
+
+    <!-- Alert Banner -->
+    <div id="urgentBanner" class="hidden bg-gradient-to-r from-rose-600 to-rose-700 text-white p-4 rounded-xl shadow-md flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+          <i data-lucide="bell" class="w-5 h-5 animate-bounce"></i>
+        </div>
+        <div>
+          <h4 id="bannerText" class="font-bold text-sm sm:text-base">Cảnh Báo: Có gói sắp hết hạn!</h4>
+          <p class="text-xs text-rose-100 mt-0.5">Vui lòng kiểm tra và gửi tin nhắn gia hạn kịp thời cho khách.</p>
+        </div>
+      </div>
+      <button onclick="filterUrgentOnly()" class="px-3.5 py-1.5 bg-white text-rose-700 font-bold text-xs rounded-lg hover:bg-rose-50 shadow-sm transition shrink-0 ml-3">
+        Lọc Danh Sách Đỏ
+      </button>
+    </div>
+
+    <!-- Add Customer Modal / Form -->
+    <div id="customerForm" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-md">
+      <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+        <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-600"></i> Thêm Khách Hàng Mới
+      </h3>
+      <form onsubmit="handleSaveCustomer(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Tên khách hàng</label>
+          <input required id="f_name" type="text" placeholder="Nguyễn Văn A" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-hidden">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Dịch vụ (Youtube, ChatGPT...)</label>
+          <input required id="f_service" type="text" placeholder="YouTube Premium 1 Năm" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-hidden">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Phân hạng</label>
+          <select id="f_type" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-hidden">
+            <option value="MOI">Khách Mới</option>
+            <option value="THAN_THIET">Thân Thiết</option>
+            <option value="VIP">VIP</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Giá bán (VNĐ)</label>
+          <input required id="f_price" type="number" placeholder="250000" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-hidden">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Ngày hết hạn gói</label>
+          <input required id="f_endDate" type="date" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-hidden">
+        </div>
+        <div class="flex items-end gap-2">
+          <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm transition">Lưu lại</button>
+          <button type="button" onclick="toggleForm()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm transition">Hủy</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Filter & Table Section -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3 bg-slate-50/50">
+        <h3 class="font-bold text-slate-800 flex items-center gap-2">
+          <i data-lucide="users" class="w-5 h-5 text-indigo-600"></i> Danh Sách Khách Hàng
+        </h3>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <input id="searchInput" oninput="renderTable()" type="text" placeholder="Tìm tên khách, dịch vụ..." class="w-full sm:w-64 px-3 py-1.5 border rounded-lg text-sm outline-hidden">
+          <button onclick="resetFilters()" class="text-xs px-2.5 py-1.5 bg-slate-200 hover:bg-slate-300 rounded-lg shrink-0">Tất cả</button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-600">
+          <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold border-b border-slate-200">
+            <tr>
+              <th class="px-4 py-3">Khách Hàng</th>
+              <th class="px-4 py-3">Gói Dịch Vụ</th>
+              <th class="px-4 py-3">Hạng</th>
+              <th class="px-4 py-3">Giá Tiền</th>
+              <th class="px-4 py-3">Hạn Dùng</th>
+              <th class="px-4 py-3">Đếm Ngược</th>
+              <th class="px-4 py-3 text-right">Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody id="customerTableBody" class="divide-y divide-slate-100 font-normal">
+            <!-- Render via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Khởi tạo bộ nhớ LocalStorage
+    let customers = JSON.parse(localStorage.getItem('tbc_customers') || '[]');
+
+    // Dữ liệu mẫu nếu danh sách trống
+    if (customers.length === 0) {
+      const today = new Date();
+      const in2Days = new Date(today); in2Days.setDate(today.getDate() + 2);
+      const in30Days = new Date(today); in30Days.setDate(today.getDate() + 30);
+      
+      customers = [
+        { id: 1, name: "Trần Anh Tuấn", service: "YouTube Premium 1 Năm", customer_type: "VIP", price: 290000, end_date: in2Days.toISOString().split('T')[0] },
+        { id: 2, name: "Nguyễn Hải Đăng", service: "ChatGPT Plus 1 Tháng", customer_type: "MOI", price: 450000, end_date: in30Days.toISOString().split('T')[0] }
+      ];
+      localStorage.setItem('tbc_customers', JSON.stringify(customers));
+    }
+
+    let filterUrgent = false;
+
+    function formatCurrencyVND(amount) {
+      return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    }
+
+    function calculateExpiry(endDateStr) {
+      const target = new Date(endDateStr);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      target.setHours(0, 0, 0, 0);
+      
+      const diffTime = target - today;
+      const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      return {
+        daysLeft,
+        isExpired: daysLeft < 0,
+        isExpiringSoon: daysLeft >= 0 && daysLeft <= 3
+      };
+    }
+
+    function renderDashboard() {
+      let totalRevenue = 0, activePackages = 0, urgentCount = 0;
+      let vipCount = 0, vipRevenue = 0, newCount = 0, newRevenue = 0;
+
+      customers.forEach(cust => {
+        const price = Number(cust.price) || 0;
+        totalRevenue += price;
+        const exp = calculateExpiry(cust.end_date);
+        
+        if (!exp.isExpired) activePackages++;
+        if (exp.isExpiringSoon) urgentCount++;
+
+        if (cust.customer_type === 'VIP') {
+          vipCount++;
+          vipRevenue += price;
+        } else if (cust.customer_type === 'MOI') {
+          newCount++;
+          newRevenue += price;
+        }
+      });
+
+      document.getElementById('statRevenue').innerText = formatCurrencyVND(totalRevenue);
+      document.getElementById('statActive').innerText = `${activePackages} gói đang chạy`;
+      document.getElementById('statUrgent').innerText = `${urgentCount} khách hàng`;
+      document.getElementById('statVipCount').innerText = `${vipCount} khách`;
+      document.getElementById('statVipRev').innerText = `${formatCurrencyVND(vipRevenue)} doanh thu`;
+      document.getElementById('statNewCount').innerText = `${newCount} khách`;
+      document.getElementById('statNewRev').innerText = `${formatCurrencyVND(newRevenue)} doanh thu`;
+
+      const banner = document.getElementById('urgentBanner');
+      if (urgentCount > 0) {
+        banner.classList.remove('hidden');
+        document.getElementById('bannerText').innerText = `Cảnh Báo: Có ${urgentCount} khách hàng sắp hết hạn trong 3 ngày tới!`;
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
+    function renderTable() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const tbody = document.getElementById('customerTableBody');
+      tbody.innerHTML = '';
+
+      const filtered = customers.filter(c => {
+        const matchSearch = c.name.toLowerCase().includes(search) || c.service.toLowerCase().includes(search);
+        if (filterUrgent) {
+          const exp = calculateExpiry(c.end_date);
+          return matchSearch && exp.isExpiringSoon;
+        }
+        return matchSearch;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Không có dữ liệu phù hợp</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(cust => {
+        const exp = calculateExpiry(cust.end_date);
+        let badgeClass = "bg-slate-100 text-slate-700";
+        let countdownText = `Còn ${exp.daysLeft} ngày`;
+
+        if (exp.isExpired) {
+          badgeClass = "bg-slate-200 text-slate-500 line-through";
+          countdownText = `Quá hạn ${Math.abs(exp.daysLeft)} ngày`;
+        } else if (exp.isExpiringSoon) {
+          badgeClass = "bg-rose-100 text-rose-700 font-bold border border-rose-300 animate-pulse";
+          countdownText = exp.daysLeft === 0 ? "Hết hạn hôm nay!" : `Còn ${exp.daysLeft} ngày (Gấp)`;
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = exp.isExpiringSoon ? "bg-rose-50/40 hover:bg-rose-50" : "hover:bg-slate-50/80";
+        tr.innerHTML = `
+          <td class="px-4 py-3 font-medium text-slate-900">${cust.name}</td>
+          <td class="px-4 py-3">${cust.service}</td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold ${cust.customer_type === 'VIP' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}">
+              ${cust.customer_type}
+            </span>
+          </td>
+          <td class="px-4 py-3 font-semibold text-slate-700">${formatCurrencyVND(cust.price)}</td>
+          <td class="px-4 py-3 text-xs text-slate-500">${cust.end_date}</td>
+          <td class="px-4 py-3">
+            <span class="px-2.5 py-1 rounded-full text-xs ${badgeClass}">
+              ${countdownText}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-right space-x-1">
+            <button onclick="copyReminder('${cust.name}', '${cust.service}', '${cust.end_date}')" class="px-2.5 py-1 text-xs bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-md font-medium" title="Copy tin nhắn Zalo">
+              Nhắc Zalo
+            </button>
+            <button onclick="deleteCustomer(${cust.id})" class="px-2 py-1 text-xs text-rose-500 hover:text-rose-700 font-medium">
+              Xóa
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      lucide.createIcons();
+    }
+
+    function toggleForm() {
+      document.getElementById('customerForm').classList.toggle('hidden');
+    }
+
+    function handleSaveCustomer(e) {
+      e.preventDefault();
+      const newCust = {
+        id: Date.now(),
+        name: document.getElementById('f_name').value,
+        service: document.getElementById('f_service').value,
+        customer_type: document.getElementById('f_type').value,
+        price: Number(document.getElementById('f_price').value),
+        end_date: document.getElementById('f_endDate').value
+      };
+      customers.push(newCust);
+      localStorage.setItem('tbc_customers', JSON.stringify(customers));
+      toggleForm();
+      e.target.reset();
+      updateAll();
+    }
+
+    function deleteCustomer(id) {
+      if (confirm('Bạn chắc chắn muốn xóa khách hàng này?')) {
+        customers = customers.filter(c => c.id !== id);
+        localStorage.setItem('tbc_customers', JSON.stringify(customers));
+        updateAll();
+      }
+    }
+
+    function copyReminder(name, service, endDate) {
+      const msg = `Chào ${name}, gói dịch vụ ${service} của bạn tại TbcShop sẽ đến hạn vào ngày ${endDate}. Bạn có nhu cầu gia hạn tiếp để không bị gián đoạn sử dụng không ạ?`;
+      navigator.clipboard.writeText(msg);
+      alert('Đã copy tin nhắn nhắc hạn vào bộ nhớ tạm:\n\n' + msg);
+    }
+
+    function filterUrgentOnly() {
+      filterUrgent = true;
+      renderTable();
+    }
+
+    function resetFilters() {
+      filterUrgent = false;
+      document.getElementById('searchInput').value = '';
+      renderTable();
+    }
+
+    function updateAll() {
+      renderDashboard();
+      renderTable();
+      lucide.createIcons();
+    }
+
+    // Chạy render khởi tạo
+    updateAll();
+  </script>
+</body>
+</html>
