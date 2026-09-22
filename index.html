@@ -539,13 +539,12 @@
 
   <!-- ================= JAVASCRIPT LOGIC ================= -->
   <script>
-    // 1. CẤU HÌNH TRỰC TIẾP SUPABASE CLOUD
+    // 1. CẤU HÌNH SUPABASE CLOUD (ĐÃ ĐIỀN CHUẨN XÁC)
     const SUPABASE_URL = "https://eiemgpzonmcydtaooscg.supabase.co";
-    // DÁN MÃ KEY BẮT ĐẦU BẰNG sb_publishable_... HOẶC eyJ... VÀO DƯỚI ĐÂY:
-    const SUPABASE_KEY = "sb_publishable_4pTWtCIzzlM35okpTtpP8A_x3ZNGOKiY";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpZW1ncHpvbm1jeWR0YW9vc2NnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwNTkwMTQsImV4cCI6MjEwNTYzNTAxNH0.ggsjHg7hpThHhQJaJkuYuU0wCugZ09rpODl_gQlTJi8";
 
     let supabaseClient = null;
-    if (window.supabase && SUPABASE_KEY && !SUPABASE_KEY.includes("sb_publishable_4pTWtCIzzlM35okpTtpP8A_x3ZNGOKi")) {
+    if (window.supabase) {
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     }
 
@@ -708,13 +707,6 @@
     async function loadCustomersFromCloud() {
       const dot = document.getElementById('supabaseStatusDot');
       const text = document.getElementById('supabaseStatusText');
-
-      if (!supabaseClient) {
-        dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
-        text.textContent = 'Chưa điền Anon Key';
-        loadCustomersLocal();
-        return;
-      }
 
       dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse';
       text.textContent = 'Đang đồng bộ...';
@@ -1325,21 +1317,16 @@
       };
 
       try {
-        if (supabaseClient) {
-          if (id) {
-            const { error } = await supabaseClient.from('customers').update(payload).eq('id', id);
-            if (error) throw error;
-            showToast(`Đã cập nhật khách hàng "${name}" trên Cloud!`);
-          } else {
-            const { error } = await supabaseClient.from('customers').insert([payload]);
-            if (error) throw error;
-            showToast(`Đã thêm khách hàng "${name}" lên Cloud!`);
-          }
-          await loadCustomersFromCloud();
+        if (id) {
+          const { error } = await supabaseClient.from('customers').update(payload).eq('id', id);
+          if (error) throw error;
+          showToast(`Đã cập nhật khách hàng "${name}" trên Cloud!`);
         } else {
-          showToast('Đang lưu tạm LocalStorage (Chưa có Anon Key)');
-          loadCustomersLocal();
+          const { error } = await supabaseClient.from('customers').insert([payload]);
+          if (error) throw error;
+          showToast(`Đã thêm khách hàng "${name}" lên Cloud!`);
         }
+        await loadCustomersFromCloud();
         closeCustomerModal();
       } catch (err) {
         alert("Lỗi Supabase: " + err.message);
@@ -1358,16 +1345,10 @@
       if (!c) return;
       if (confirm(`Bạn có chắc muốn xóa khách hàng "${c.name}" trên Supabase Cloud?`)) {
         try {
-          if (supabaseClient) {
-            const { error } = await supabaseClient.from('customers').delete().eq('id', id);
-            if (error) throw error;
-            showToast(`Đã xóa khách hàng "${c.name}" trên Cloud!`);
-            await loadCustomersFromCloud();
-          } else {
-            customers = customers.filter(item => item.id !== id);
-            localStorage.setItem('tbcshop_customers', JSON.stringify(customers));
-            renderAll();
-          }
+          const { error } = await supabaseClient.from('customers').delete().eq('id', id);
+          if (error) throw error;
+          showToast(`Đã xóa khách hàng "${c.name}" trên Cloud!`);
+          await loadCustomersFromCloud();
         } catch (err) {
           alert("Lỗi khi xóa: " + err.message);
         }
@@ -1424,17 +1405,15 @@
       const addPrice = Number(document.getElementById('renewPrice').value) || 0;
 
       try {
-        if (supabaseClient) {
-          const currentPrice = Number(currentRenewCustomer.price) || 0;
-          const { error } = await supabaseClient.from('customers').update({
-            end_date: newEndDate,
-            price: currentPrice + addPrice
-          }).eq('id', id);
+        const currentPrice = Number(currentRenewCustomer.price) || 0;
+        const { error } = await supabaseClient.from('customers').update({
+          end_date: newEndDate,
+          price: currentPrice + addPrice
+        }).eq('id', id);
 
-          if (error) throw error;
-          showToast(`Đã gia hạn thành công cho "${currentRenewCustomer.name}"!`);
-          await loadCustomersFromCloud();
-        }
+        if (error) throw error;
+        showToast(`Đã gia hạn thành công cho "${currentRenewCustomer.name}"!`);
+        await loadCustomersFromCloud();
         closeRenewModal();
       } catch (err) {
         alert("Lỗi gia hạn: " + err.message);
