@@ -70,15 +70,26 @@
       </div>
 
       <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- Nút Cài Đặt Danh Mục Nguồn / Nhà Cung Cấp -->
+        <button 
+          id="btnOpenSettings" 
+          onclick="openSettingsModal()"
+          class="inline-flex items-center space-x-1.5 px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition"
+          title="Cài đặt Nhà Cung Cấp, Kênh & Gói Mẫu"
+        >
+          <i data-lucide="settings" class="w-4 h-4 text-slate-500"></i>
+          <span class="hidden md:inline">Cài Đặt</span>
+        </button>
+
         <!-- Supabase Cloud Indicator -->
         <button 
           id="btnOpenConfig" 
-          onclick="loadCustomersFromCloud()"
+          onclick="openConfigModal()"
           class="inline-flex items-center space-x-1.5 px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition"
-          title="Bấm để đồng bộ dữ liệu ngay lập tức"
+          title="Cài đặt kết nối Supabase Cloud"
         >
-          <span id="supabaseStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-          <span id="supabaseStatusText" class="hidden sm:inline">Đang kết nối...</span>
+          <span id="supabaseStatusDot" class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+          <span id="supabaseStatusText" class="hidden sm:inline">Supabase</span>
         </button>
 
         <!-- Thêm Khách Hàng Mới -->
@@ -177,17 +188,17 @@
             id="searchInput" 
             oninput="handleSearch(this.value)"
             placeholder="Tìm theo tên, SĐT, gói, nguồn (Fanpage/TikTok...), kênh liên hệ (Zalo...)..."
-            class="w-full text-xs sm:text-sm pl-9 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-hidden"
+            class="w-full text-xs sm:text-sm pl-9 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none"
           />
         </div>
 
-        <!-- Bộ lọc phân loại & Thời hạn -->
+        <!-- Bộ lọc phân loại & Thời hạn & Trạng thái gói -->
         <div class="flex flex-wrap items-center gap-2">
           <!-- Phân loại khách -->
           <select 
             id="filterCustomerType" 
             onchange="handleFilterChange()"
-            class="text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-700 outline-hidden focus:ring-2 focus:ring-rose-500/20"
+            class="text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-700 outline-none focus:ring-2 focus:ring-rose-500/20"
           >
             <option value="ALL">Tất cả phân loại</option>
             <option value="VIP">👑 Khách VIP</option>
@@ -195,11 +206,23 @@
             <option value="THAN_THIET">⭐ Thân thiết</option>
           </select>
 
+          <!-- Trạng thái gói -->
+          <select 
+            id="filterPackageStatus" 
+            onchange="handleFilterChange()"
+            class="text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-700 outline-none focus:ring-2 focus:ring-rose-500/20"
+          >
+            <option value="ALL">Tất cả trạng thái gói</option>
+            <option value="Đang hoạt động">🟢 Đang hoạt động</option>
+            <option value="Tạm dừng">🟡 Tạm dừng</option>
+            <option value="Hủy">🔴 Đã hủy</option>
+          </select>
+
           <!-- Thời hạn -->
           <select 
             id="filterExpiryStatus" 
             onchange="handleFilterChange()"
-            class="text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-700 outline-hidden focus:ring-2 focus:ring-rose-500/20 font-medium"
+            class="text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-700 outline-none focus:ring-2 focus:ring-rose-500/20 font-medium"
           >
             <option value="ALL">Tất cả thời hạn</option>
             <option value="EXPIRING_SOON" class="text-rose-600 font-bold">🔴 Sắp hết hạn (≤ 3 ngày)</option>
@@ -237,9 +260,7 @@
             </tr>
           </thead>
           <tbody id="customerTableBody" class="divide-y divide-slate-100 text-slate-700">
-            <tr>
-              <td colspan="9" class="px-4 py-12 text-center text-slate-400">Đang tải dữ liệu từ Supabase Cloud...</td>
-            </tr>
+            <!-- Rendered by JS -->
           </tbody>
         </table>
       </div>
@@ -284,7 +305,9 @@
       </div>
 
       <!-- Body -->
-      <div class="p-6 space-y-5 overflow-y-auto" id="detailModalBody"></div>
+      <div class="p-6 space-y-5 overflow-y-auto" id="detailModalBody">
+        <!-- Rendered dynamically by openOrderDetailModal() -->
+      </div>
 
       <!-- Footer Actions -->
       <div class="px-6 py-3.5 border-t border-slate-100 bg-slate-50 flex flex-wrap items-center justify-between gap-2">
@@ -323,7 +346,7 @@
       <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
         <div>
           <h3 id="customerModalTitle" class="text-base font-bold text-slate-900">Thêm Khách Mua Gói Mới</h3>
-          <p class="text-xs text-slate-500">Lưu trực tiếp lên đám mây Supabase</p>
+          <p class="text-xs text-slate-500">Nhập thông tin khách hàng, gói đăng ký và thời hạn</p>
         </div>
         <button onclick="closeCustomerModal()" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -337,28 +360,29 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Tên khách hàng *</label>
-            <input type="text" id="formName" required placeholder="Nguyễn Thái Bình" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-hidden" />
+            <input type="text" id="formName" required placeholder="Nguyễn Thái Bình" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none" />
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Số điện thoại</label>
-            <input type="text" id="formPhone" placeholder="0988 xxx xxx" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-hidden font-mono" />
+            <input type="text" id="formPhone" placeholder="0988 xxx xxx" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none font-mono" />
           </div>
         </div>
 
-        <!-- Nguồn khách & Kênh liên hệ -->
+        <!-- Nguồn khách, Kênh liên hệ & Nhà cung cấp -->
         <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2.5">
           <div class="flex items-center space-x-1.5 text-xs font-bold text-slate-800">
             <i data-lucide="share-2" class="w-3.5 h-3.5 text-rose-600"></i>
-            <span>Nguồn khách & Phương thức liên hệ</span>
+            <span>Nguồn khách, Kênh liên hệ & Nguồn hàng</span>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nguồn (Nền tảng)</label>
-              <input type="text" id="formChannelSource" placeholder="Fanpage, TikTok..." class="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white outline-hidden focus:border-rose-500" />
+              <input type="text" id="formChannelSource" list="presetChannelsList" placeholder="Fanpage, TikTok..." class="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white outline-none focus:border-rose-500" />
+              <datalist id="presetChannelsList"></datalist>
             </div>
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">Kênh liên hệ</label>
-              <select id="formContactChannel" class="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white outline-hidden focus:border-rose-500">
+              <select id="formContactChannel" class="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white outline-none focus:border-rose-500">
                 <option value="Zalo">Zalo</option>
                 <option value="Messenger">Messenger</option>
                 <option value="Telegram">Telegram</option>
@@ -370,67 +394,103 @@
             </div>
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nick / SĐT liên hệ</label>
-              <input type="text" id="formContactHandle" placeholder="SĐT hoặc username" class="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white outline-hidden focus:border-rose-500 font-mono" />
+              <input type="text" id="formContactHandle" placeholder="SĐT hoặc username" class="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white outline-none focus:border-rose-500 font-mono" />
             </div>
           </div>
-        </div>
-
-        <!-- Gói mẫu -->
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Chọn gói mẫu phổ biến:</label>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
-            <button type="button" onclick="selectPreset('Netflix Premium 4K (1 Tháng)', 90000, 45000, 1)" class="p-1.5 text-left border border-slate-200 rounded-lg hover:border-rose-400 hover:bg-rose-50/40 text-[11px] transition">
-              <span class="font-bold text-slate-800 block truncate">Netflix 4K (1T)</span>
-              <span class="text-rose-600 font-mono">90.000 ₫</span>
-            </button>
-            <button type="button" onclick="selectPreset('Spotify Family (1 Năm)', 280000, 120000, 12)" class="p-1.5 text-left border border-slate-200 rounded-lg hover:border-rose-400 hover:bg-rose-50/40 text-[11px] transition">
-              <span class="font-bold text-slate-800 block truncate">Spotify (1 Năm)</span>
-              <span class="text-rose-600 font-mono">280.000 ₫</span>
-            </button>
-            <button type="button" onclick="selectPreset('Youtube Premium (6 Tháng)', 190000, 80000, 6)" class="p-1.5 text-left border border-slate-200 rounded-lg hover:border-rose-400 hover:bg-rose-50/40 text-[11px] transition">
-              <span class="font-bold text-slate-800 block truncate">Youtube (6 Tháng)</span>
-              <span class="text-rose-600 font-mono">190.000 ₫</span>
-            </button>
-            <button type="button" onclick="selectPreset('ChatGPT Plus (1 Tháng)', 450000, 250000, 1)" class="p-1.5 text-left border border-slate-200 rounded-lg hover:border-rose-400 hover:bg-rose-50/40 text-[11px] transition">
-              <span class="font-bold text-slate-800 block truncate">ChatGPT Plus (1T)</span>
-              <span class="text-rose-600 font-mono">450.000 ₫</span>
-            </button>
-            <button type="button" onclick="selectPreset('Canva Pro (1 Năm)', 150000, 60000, 12)" class="p-1.5 text-left border border-slate-200 rounded-lg hover:border-rose-400 hover:bg-rose-50/40 text-[11px] transition">
-              <span class="font-bold text-slate-800 block truncate">Canva Pro (1 Năm)</span>
-              <span class="text-rose-600 font-mono">150.000 ₫</span>
-            </button>
-            <button type="button" onclick="selectPreset('CapCut Pro (1 Năm)', 320000, 140000, 12)" class="p-1.5 text-left border border-slate-200 rounded-lg hover:border-rose-400 hover:bg-rose-50/40 text-[11px] transition">
-              <span class="font-bold text-slate-800 block truncate">CapCut Pro (1 Năm)</span>
-              <span class="text-rose-600 font-mono">320.000 ₫</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Tên gói & Phân loại -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Tên gói dịch vụ *</label>
-            <input type="text" id="formPackageName" required placeholder="Netflix 4K, Youtube..." class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-hidden" />
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1 flex items-center justify-between">
+              <span>Nguồn hàng / Nhà cung cấp (Sourcing)</span>
+              <button type="button" onclick="openSettingsModal('suppliers')" class="text-rose-600 hover:underline text-[10px]">Quản lý NCC</button>
+            </label>
+            <input type="text" id="formSupplierSource" list="presetSuppliersList" placeholder="Chọn hoặc nhập NCC (VD: Shop Key Pro, Kho Sỉ...)" class="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white outline-none focus:border-rose-500" />
+            <datalist id="presetSuppliersList"></datalist>
           </div>
+        </div>
+
+        <!-- Chọn gói mẫu nhanh -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-bold text-slate-700">Chọn gói mẫu phổ biến:</label>
+            <button type="button" onclick="openSettingsModal('packages')" class="text-rose-600 hover:underline text-[11px]">Quản lý gói mẫu</button>
+          </div>
+          <div id="presetPackagesContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+            <!-- Dynamic presets or default presets rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Tên gói, Mục đích & Trạng thái gói -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-1">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Tên gói dịch vụ *</label>
+            <input type="text" id="formPackageName" required placeholder="Netflix 4K, Youtube..." class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Mục đích gói</label>
+            <select id="formPackagePurpose" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg bg-white outline-none focus:border-rose-500">
+              <option value="Mua gói cước">🛒 Mua gói cước</option>
+              <option value="Bảo hành">🛡️ Bảo hành</option>
+              <option value="Hủy gói">❌ Hủy gói</option>
+              <option value="Khác">📝 Khác</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Trạng thái gói</label>
+            <select id="formPackageStatus" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg bg-white outline-none focus:border-rose-500 font-semibold">
+              <option value="Đang hoạt động" class="text-emerald-700">🟢 Đang hoạt động</option>
+              <option value="Tạm dừng" class="text-amber-700">🟡 Tạm dừng</option>
+              <option value="Hủy" class="text-rose-700">🔴 Hủy</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Phân loại khách & Giá bán / Giá vốn -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Phân loại khách</label>
-            <select id="formCustomerType" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg bg-white outline-hidden focus:border-rose-500">
+            <select id="formCustomerType" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg bg-white outline-none focus:border-rose-500">
               <option value="MOI">✨ Khách Mới</option>
               <option value="VIP">👑 Khách VIP</option>
               <option value="THAN_THIET">⭐ Khách Thân Thiết</option>
             </select>
           </div>
-        </div>
-
-        <!-- Giá bán & Giá vốn -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Giá bán (VNĐ) *</label>
-            <input type="number" id="formPrice" required placeholder="150000" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-hidden font-mono" />
+            <input type="number" id="formPrice" required placeholder="150000" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none font-mono" />
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Giá vốn (VNĐ)</label>
-            <input type="number" id="formCost" placeholder="60000" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-hidden font-mono" />
+            <input type="number" id="formCost" placeholder="60000" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none font-mono" />
+          </div>
+        </div>
+
+        <!-- Thông Tin Thanh Toán (Payment Details) -->
+        <div class="bg-amber-50/60 border border-amber-200/80 rounded-xl p-3 space-y-2.5">
+          <div class="flex items-center space-x-1.5 text-xs font-bold text-amber-900">
+            <i data-lucide="credit-card" class="w-3.5 h-3.5 text-amber-700"></i>
+            <span>Thông tin giao dịch & Thanh toán</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Ngày thanh toán</label>
+              <input type="date" id="formPaymentDate" class="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white outline-none focus:border-amber-500 font-mono" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Ngân hàng nhận</label>
+              <div class="flex items-center space-x-1">
+                <select id="formReceivingBankPreset" onchange="handleBankPresetChange(this.value)" class="w-24 text-xs px-1.5 py-1.5 border border-slate-200 rounded-lg bg-white outline-none focus:border-amber-500">
+                  <option value="TP Bank">TP Bank</option>
+                  <option value="MoMo">MoMo</option>
+                  <option value="MB Bank">MB Bank</option>
+                  <option value="Vietcombank">Vietcombank</option>
+                  <option value="Khác">Tự nhập</option>
+                </select>
+                <input type="text" id="formReceivingBank" placeholder="Tên ngân hàng" class="flex-1 text-xs px-2 py-1.5 border border-slate-200 rounded-lg bg-white outline-none focus:border-amber-500" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Số TK nhận / Ví</label>
+              <input type="text" id="formReceivingAccount" placeholder="Số tài khoản nhận tiền" class="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white outline-none focus:border-amber-500 font-mono" />
+            </div>
           </div>
         </div>
 
@@ -438,11 +498,11 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Ngày bắt đầu *</label>
-            <input type="date" id="formStartDate" required class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-hidden font-mono" />
+            <input type="date" id="formStartDate" required class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none font-mono" />
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Ngày hết hạn *</label>
-            <input type="date" id="formEndDate" required class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-hidden font-mono" />
+            <input type="date" id="formEndDate" required class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none font-mono" />
           </div>
         </div>
 
@@ -458,13 +518,13 @@
         <!-- Ghi chú -->
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Ghi chú (Tài khoản / Slot / Pin)</label>
-          <textarea id="formNotes" rows="2" placeholder="Ví dụ: Slot 2, PIN 1234, mail chính chủ..." class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-hidden"></textarea>
+          <textarea id="formNotes" rows="2" placeholder="Ví dụ: Slot 2, PIN 1234, mail chính chủ..." class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none"></textarea>
         </div>
 
         <!-- Nút lưu -->
         <div class="pt-2 flex justify-end space-x-2">
           <button type="button" onclick="closeCustomerModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition">Hủy bỏ</button>
-          <button id="btnSaveCustomer" type="submit" class="px-5 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-sm transition">Lưu Lên Cloud</button>
+          <button type="submit" class="px-5 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-sm transition">Lưu Khách Hàng</button>
         </div>
       </form>
     </div>
@@ -509,25 +569,139 @@
 
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Ngày hết hạn mới *</label>
-          <input type="date" id="renewNewEndDate" required class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-hidden font-mono" />
+          <input type="date" id="renewNewEndDate" required class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none font-mono" />
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Giá thu thêm (VNĐ)</label>
-            <input type="number" id="renewPrice" placeholder="0" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg outline-hidden font-mono" />
+            <input type="number" id="renewPrice" placeholder="0" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg outline-none font-mono" />
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Giá vốn thêm (VNĐ)</label>
-            <input type="number" id="renewCost" placeholder="0" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg outline-hidden font-mono" />
+            <input type="number" id="renewCost" placeholder="0" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg outline-none font-mono" />
           </div>
         </div>
 
         <div class="pt-2 flex justify-end space-x-2">
           <button type="button" onclick="closeRenewModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition">Hủy bỏ</button>
-          <button id="btnConfirmRenew" type="submit" class="px-5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition">Xác Nhận Gia Hạn</button>
+          <button type="submit" class="px-5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition">Xác Nhận Gia Hạn</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- 4. MODAL CÀI ĐẶT SUPABASE CLOUD -->
+  <div id="configModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden" onclick="event.stopPropagation()">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-base font-bold text-slate-900">Cấu Hình Supabase Cloud</h3>
+        <button onclick="closeConfigModal()" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <p class="text-xs text-slate-600">
+          Kết nối tới dự án Supabase để đồng bộ dữ liệu đám mây đa thiết bị. Nếu không điền, ứng dụng sẽ lưu trực tiếp trên <strong>LocalStorage</strong> của máy tính này.
+        </p>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Supabase Project URL</label>
+          <input type="text" id="cfgSupabaseUrl" placeholder="https://xxx.supabase.co" class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg outline-none font-mono" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Supabase Anon Key</label>
+          <input type="password" id="cfgSupabaseKey" placeholder="eyJhbGciOiJIUzI1NiIsIn..." class="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg outline-none font-mono" />
+        </div>
+
+        <div class="pt-2 flex justify-end space-x-2">
+          <button type="button" onclick="closeConfigModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition">Đóng</button>
+          <button type="button" onclick="saveSupabaseConfig()" class="px-5 py-2 text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-lg shadow-sm transition">Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. MODAL CÀI ĐẶT NHÀ CUNG CẤP, KÊNH NGUỒN & GÓI MẪU -->
+  <div id="settingsModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden" onclick="event.stopPropagation()">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
+            <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Cài Đặt Danh Mục & Cấu Hình</h3>
+            <p class="text-xs text-slate-500">Quản lý Nhà Cung Cấp, Kênh Nguồn Khách và Gói Dịch Vụ Mẫu</p>
+          </div>
+        </div>
+        <button onclick="closeSettingsModal()" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Settings Tabs -->
+      <div class="flex border-b border-slate-200 bg-slate-50/50 px-6 pt-2 text-xs font-semibold">
+        <button type="button" id="tabBtnSuppliers" onclick="switchSettingsTab('suppliers')" class="px-4 py-2 border-b-2 border-rose-600 text-rose-600 transition">
+          Nhà Cung Cấp (NCC)
+        </button>
+        <button type="button" id="tabBtnChannels" onclick="switchSettingsTab('channels')" class="px-4 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition">
+          Kênh / Nguồn Khách
+        </button>
+        <button type="button" id="tabBtnPackages" onclick="switchSettingsTab('packages')" class="px-4 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition">
+          Gói Mẫu Nhanh
+        </button>
+      </div>
+
+      <!-- Tab Content: Suppliers -->
+      <div id="tabContentSuppliers" class="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+        <div class="flex items-center space-x-2">
+          <input type="text" id="newSupplierInput" placeholder="Nhập tên nhà cung cấp mới (VD: Shop Key Pro)..." class="flex-1 text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-rose-500" />
+          <button type="button" onclick="addSupplierPreset()" class="px-4 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition shrink-0">Thêm NCC</button>
+        </div>
+        <p class="text-[11px] text-slate-400">Các nhà cung cấp này sẽ tự động gợi ý trong ô chọn Nguồn hàng / NCC khi tạo hoặc chỉnh sửa đơn hàng.</p>
+        <div id="suppliersList" class="space-y-1.5">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Tab Content: Channels -->
+      <div id="tabContentChannels" class="p-6 space-y-4 max-h-[60vh] overflow-y-auto hidden">
+        <div class="flex items-center space-x-2">
+          <input type="text" id="newChannelInput" placeholder="Nhập kênh nguồn mới (VD: Threads, Google Ads)..." class="flex-1 text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-rose-500" />
+          <button type="button" onclick="addChannelPreset()" class="px-4 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition shrink-0">Thêm Kênh</button>
+        </div>
+        <p class="text-[11px] text-slate-400">Kênh tìm kiếm nguồn khách hỗ trợ theo dõi hiệu quả marketing của từng nền tảng.</p>
+        <div id="channelsList" class="space-y-1.5">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Tab Content: Packages -->
+      <div id="tabContentPackages" class="p-6 space-y-4 max-h-[60vh] overflow-y-auto hidden">
+        <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-2">
+          <span class="text-xs font-bold text-slate-700 block">Thêm Gói Mẫu Mới</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input type="text" id="newPkgName" placeholder="Tên gói (VD: Youtube 1 Năm)" class="text-xs px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white outline-none focus:border-rose-500" />
+            <input type="number" id="newPkgMonths" placeholder="Thời hạn (tháng, VD: 12)" class="text-xs px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white outline-none focus:border-rose-500 font-mono" />
+            <input type="number" id="newPkgPrice" placeholder="Giá bán (VNĐ, VD: 320000)" class="text-xs px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white outline-none focus:border-rose-500 font-mono" />
+            <input type="number" id="newPkgCost" placeholder="Giá vốn (VNĐ, VD: 150000)" class="text-xs px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white outline-none focus:border-rose-500 font-mono" />
+          </div>
+          <div class="flex justify-end pt-1">
+            <button type="button" onclick="addPackagePreset()" class="px-3 py-1.5 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition">Thêm Vào Mẫu</button>
+          </div>
+        </div>
+        <div id="packagesList" class="space-y-2">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <div class="px-6 py-3 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center text-xs">
+        <span class="text-slate-400">Được lưu trên trình duyệt của bạn</span>
+        <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white rounded-lg transition">Xong</button>
+      </div>
     </div>
   </div>
 
@@ -539,27 +713,127 @@
 
   <!-- ================= JAVASCRIPT LOGIC ================= -->
   <script>
-    // 1. CẤU HÌNH SUPABASE CLOUD (ĐÃ ĐIỀN CHUẨN XÁC)
-    const SUPABASE_URL = "https://eiemgpzonmcydtaooscg.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpZW1ncHpvbm1jeWR0YW9vc2NnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwNTkwMTQsImV4cCI6MjEwNTYzNTAxNH0.ggsjHg7hpThHhQJaJkuYuU0wCugZ09rpODl_gQlTJi8";
-
-    let supabaseClient = null;
-    if (window.supabase) {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    }
+    // 1. DATA STRUCTURE & INITIAL MOCK DATA
+    const INITIAL_CUSTOMERS = [
+      {
+        id: 'cust-1',
+        name: 'Nguyễn Thái Bình',
+        phone: '0988123456',
+        contact_channel: 'Zalo',
+        contact_handle: '0988123456',
+        channel_source: 'Fanpage Facebook',
+        package_name: 'Netflix Premium 4K (1 Tháng)',
+        customer_type: 'VIP',
+        price: 90000,
+        cost: 45000,
+        start_date: getPastDate(28),
+        end_date: getFutureDate(2), // ≤ 3 ngày -> CẢNH BÁO ĐỎ
+        notes: 'Profile 2, PIN 1234. Khách quen hay gia hạn đúng hạn.',
+        created_at: getPastDate(28)
+      },
+      {
+        id: 'cust-2',
+        name: 'Trần Minh Anh',
+        phone: '0912345678',
+        contact_channel: 'Messenger',
+        contact_handle: 'fb.com/minhanh.tran',
+        channel_source: 'TikTok Shop',
+        package_name: 'Spotify Family (1 Năm)',
+        customer_type: 'MOI',
+        price: 280000,
+        cost: 120000,
+        start_date: getPastDate(15),
+        end_date: getFutureDate(350),
+        notes: 'Slot 4 trong gói Family, mail chính chủ.',
+        created_at: getPastDate(15)
+      },
+      {
+        id: 'cust-3',
+        name: 'Lê Hoàng Long',
+        phone: '0977889900',
+        contact_channel: 'Telegram',
+        contact_handle: '@longle_dev',
+        channel_source: 'Group Telegram',
+        package_name: 'ChatGPT Plus (1 Tháng)',
+        customer_type: 'VIP',
+        price: 450000,
+        cost: 250000,
+        start_date: getPastDate(29),
+        end_date: getFutureDate(1), // ≤ 3 ngày -> CẢNH BÁO ĐỎ
+        notes: 'Tài khoản cấp sẵn. Đã thanh toán chuyển khoản MB Bank.',
+        created_at: getPastDate(29)
+      },
+      {
+        id: 'cust-4',
+        name: 'Phạm Thu Trang',
+        phone: '0933445566',
+        contact_channel: 'Instagram',
+        contact_handle: '@thutrang.beauty',
+        channel_source: 'Instagram Ads',
+        package_name: 'Canva Pro (1 Năm)',
+        customer_type: 'THAN_THIET',
+        price: 150000,
+        cost: 60000,
+        start_date: getPastDate(90),
+        end_date: getFutureDate(275),
+        notes: 'Mời vào team Canva EDU.',
+        created_at: getPastDate(90)
+      },
+      {
+        id: 'cust-5',
+        name: 'Vũ Đức Thịnh',
+        phone: '0901223344',
+        contact_channel: 'Zalo',
+        contact_handle: '0901223344',
+        channel_source: 'Bạn bè giới thiệu',
+        package_name: 'Youtube Premium (6 Tháng)',
+        customer_type: 'MOI',
+        price: 190000,
+        cost: 80000,
+        start_date: getPastDate(30),
+        end_date: getFutureDate(0), // Hôm nay hết hạn -> CẢNH BÁO ĐỎ
+        notes: 'Add mail thinh.vu@gmail.com.',
+        created_at: getPastDate(30)
+      }
+    ];
 
     // STATE
     let customers = [];
     let activeFilters = {
       search: '',
       type: 'ALL',
+      packageStatus: 'ALL',
       expiry: 'ALL'
     };
     let currentDetailCustomer = null;
+    let supabaseClient = null;
 
-    // 2. HELPER FUNCTIONS
+    // PRESETS FOR SUPPLIERS, CHANNELS & PACKAGES (Stored in localStorage)
+    const DEFAULT_SUPPLIERS = ['Shop Key Pro', 'Kho Sỉ Netflix VN', 'Đại Lý Spotify', 'Dev Tool Store', 'Chính Hãng Store'];
+    const DEFAULT_CHANNELS = ['Fanpage Facebook', 'TikTok Shop', 'Group Telegram', 'Instagram Ads', 'Threads', 'Bạn bè giới thiệu', 'Zalo'];
+    const DEFAULT_PACKAGES = [
+      { name: 'Netflix Premium 4K (1 Tháng)', price: 90000, cost: 45000, months: 1 },
+      { name: 'Spotify Family (1 Năm)', price: 280000, cost: 120000, months: 12 },
+      { name: 'Youtube Premium (6 Tháng)', price: 190000, cost: 80000, months: 6 },
+      { name: 'ChatGPT Plus (1 Tháng)', price: 450000, cost: 250000, months: 1 },
+      { name: 'Canva Pro (1 Năm)', price: 150000, cost: 60000, months: 12 },
+      { name: 'CapCut Pro (1 Năm)', price: 320000, cost: 140000, months: 12 }
+    ];
+
+    let presetSuppliers = [];
+    let presetChannels = [];
+    let presetPackages = [];
+
+    // 2. HELPER FUNCTIONS FOR DATES
     function getTodayString() {
-      return new Date().toISOString().split('T')[0];
+      const now = new Date();
+      return now.toISOString().split('T')[0];
+    }
+
+    function getPastDate(daysAgo) {
+      const d = new Date();
+      d.setDate(d.getDate() - daysAgo);
+      return d.toISOString().split('T')[0];
     }
 
     function getFutureDate(daysAhead) {
@@ -579,6 +853,7 @@
       return (Number(amount) || 0).toLocaleString('vi-VN') + ' ₫';
     }
 
+    // EXPIRY CALCULATION
     function calculateExpiry(endDateStr) {
       if (!endDateStr) return { daysLeft: 0, isExpired: false, isExpiringSoon: false, displayText: '' };
       const today = new Date(getTodayString());
@@ -617,6 +892,7 @@
       }
     }
 
+    // THANH NĂNG LƯỢNG ĐẾM NGƯỢC (Chuyển màu Blue -> Amber -> Red)
     function calculateEnergyBar(startDateStr, endDateStr) {
       const start = new Date(startDateStr || getTodayString()).getTime();
       const end = new Date(endDateStr || getTodayString()).getTime();
@@ -624,18 +900,31 @@
 
       const totalDuration = end - start;
       if (totalDuration <= 0) {
-        return { percent: 0, colorGradient: 'from-slate-400 to-slate-500', statusLabel: 'Đã hết hạn', textColor: 'text-slate-500', glowClass: '' };
+        return {
+          percent: 0,
+          colorGradient: 'from-slate-400 to-slate-500',
+          statusLabel: 'Đã hết hạn',
+          textColor: 'text-slate-500',
+          glowClass: ''
+        };
       }
 
       const remaining = end - now;
       if (remaining <= 0) {
-        return { percent: 0, colorGradient: 'from-slate-400 to-slate-500', statusLabel: 'Đã cạn năng lượng', textColor: 'text-slate-500', glowClass: '' };
+        return {
+          percent: 0,
+          colorGradient: 'from-slate-400 to-slate-500',
+          statusLabel: 'Đã cạn năng lượng',
+          textColor: 'text-slate-500',
+          glowClass: ''
+        };
       }
 
       const fraction = Math.max(0, Math.min(1, remaining / totalDuration));
       const percent = Math.max(4, Math.round(fraction * 100));
       const daysLeft = Math.ceil(remaining / (1000 * 60 * 60 * 24));
 
+      // Đổi màu theo thời gian
       if (daysLeft <= 3 || percent <= 15) {
         return {
           percent,
@@ -671,91 +960,99 @@
       }
     }
 
+    // CONTACT BADGE INFO
     function getContactBadge(channel, handle) {
-      let icon = 'phone', label = 'Gọi/SMS', colorClass = 'bg-slate-50 text-slate-700 border-slate-200';
+      let icon = 'phone';
+      let label = 'Gọi/SMS';
+      let colorClass = 'bg-slate-50 text-slate-700 border-slate-200';
       let link = handle ? `tel:${handle}` : null;
 
       switch (channel) {
         case 'Zalo':
-          icon = 'message-circle'; label = 'Zalo'; colorClass = 'bg-blue-50 text-blue-700 border-blue-200';
+          icon = 'message-circle';
+          label = 'Zalo';
+          colorClass = 'bg-blue-50 text-blue-700 border-blue-200';
           if (handle) link = `https://zalo.me/${handle.replace(/\D/g, '')}`;
           break;
         case 'Messenger':
-          icon = 'message-circle'; label = 'Messenger'; colorClass = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+          icon = 'message-circle';
+          label = 'Messenger';
+          colorClass = 'bg-indigo-50 text-indigo-700 border-indigo-200';
           if (handle) link = handle.startsWith('http') ? handle : `https://${handle}`;
           break;
         case 'Telegram':
-          icon = 'send'; label = 'Telegram'; colorClass = 'bg-sky-50 text-sky-700 border-sky-200';
+          icon = 'send';
+          label = 'Telegram';
+          colorClass = 'bg-sky-50 text-sky-700 border-sky-200';
           if (handle) link = `https://t.me/${handle.replace('@', '')}`;
           break;
         case 'Instagram':
-          icon = 'camera'; label = 'Instagram'; colorClass = 'bg-pink-50 text-pink-700 border-pink-200';
+          icon = 'camera';
+          label = 'Instagram';
+          colorClass = 'bg-pink-50 text-pink-700 border-pink-200';
           if (handle) link = `https://instagram.com/${handle.replace('@', '')}`;
           break;
         case 'TikTok':
-          icon = 'video'; label = 'TikTok'; colorClass = 'bg-slate-100 text-slate-800 border-slate-300';
+          icon = 'video';
+          label = 'TikTok';
+          colorClass = 'bg-slate-100 text-slate-800 border-slate-300';
           if (handle) link = `https://tiktok.com/@${handle.replace('@', '')}`;
           break;
         case 'Website':
-          icon = 'globe'; label = 'Website'; colorClass = 'bg-teal-50 text-teal-700 border-teal-200';
+          icon = 'globe';
+          label = 'Website';
+          colorClass = 'bg-teal-50 text-teal-700 border-teal-200';
           break;
       }
+
       return { icon, label, colorClass, link };
     }
 
-    // 3. STORAGE & SUPABASE CLOUD CALLS
-    async function loadCustomersFromCloud() {
-      const dot = document.getElementById('supabaseStatusDot');
-      const text = document.getElementById('supabaseStatusText');
-
-      dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse';
-      text.textContent = 'Đang đồng bộ...';
-
-      try {
-        const { data, error } = await supabaseClient
-          .from('customers')
-          .select('*')
-          .order('end_date', { ascending: true });
-
-        if (error) throw error;
-
-        // Chuẩn hoá dữ liệu Supabase
-        customers = (data || []).map(row => ({
-          id: String(row.id),
-          name: row.name || '',
-          phone: row.phone || '',
-          contact_channel: row.contact_channel || 'Zalo',
-          contact_handle: row.contact_handle || row.phone || '',
-          channel_source: row.channel_source || 'Trực tiếp',
-          package_name: row.package_name || row.service || 'Gói dịch vụ',
-          customer_type: row.customer_type || 'MOI',
-          price: Number(row.price) || 0,
-          cost: Number(row.cost) || 0,
-          start_date: row.start_date || getTodayString(),
-          end_date: row.end_date || getFutureDate(30),
-          notes: row.notes || '',
-          created_at: row.created_at || getTodayString()
-        }));
-
-        localStorage.setItem('tbcshop_customers', JSON.stringify(customers));
-        dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
-        text.textContent = `Cloud (${customers.length})`;
-        renderAll();
-      } catch (err) {
-        console.error("Lỗi Supabase:", err);
-        dot.className = 'w-2.5 h-2.5 rounded-full bg-rose-500';
-        text.textContent = 'Lỗi Supabase';
-        showToast('Không thể tải từ Cloud: ' + err.message);
-        loadCustomersLocal();
-      }
-    }
-
-    function loadCustomersLocal() {
+    // 3. STORAGE LOGIC (LocalStorage + optional Supabase)
+    async function loadCustomers() {
       const local = localStorage.getItem('tbcshop_customers');
       if (local) {
-        try { customers = JSON.parse(local); } catch (e) { customers = []; }
+        try {
+          customers = JSON.parse(local);
+        } catch (e) {
+          customers = [...INITIAL_CUSTOMERS];
+        }
+      } else {
+        customers = [...INITIAL_CUSTOMERS];
+        saveCustomersLocal();
       }
+
+      // If Supabase client is initialized, fetch cloud data
+      if (supabaseClient) {
+        try {
+          const { data, error } = await supabaseClient
+            .from('customers')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+          if (!error && data && data.length > 0) {
+            customers = data;
+            saveCustomersLocal();
+          }
+        } catch (err) {
+          console.warn('Supabase fetch fallback to local:', err);
+        }
+      }
+
       renderAll();
+    }
+
+    async function saveCustomersLocal() {
+      localStorage.setItem('tbcshop_customers', JSON.stringify(customers));
+
+      // Optional Supabase background sync
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('customers').upsert(customers);
+        } catch (err) {
+          console.warn('Supabase sync skipped/failed:', err);
+        }
+      }
     }
 
     // 4. RENDERING LOGIC
@@ -768,8 +1065,14 @@
     }
 
     function renderStats() {
-      let totalRevenue = 0, totalCost = 0, activeCount = 0, urgentCount = 0;
-      let vipCount = 0, vipRevenue = 0, newCount = 0, newRevenue = 0;
+      let totalRevenue = 0;
+      let totalCost = 0;
+      let activeCount = 0;
+      let urgentCount = 0;
+      let vipCount = 0;
+      let vipRevenue = 0;
+      let newCount = 0;
+      let newRevenue = 0;
 
       customers.forEach(c => {
         const p = Number(c.price) || 0;
@@ -795,11 +1098,15 @@
 
       document.getElementById('statTotalRevenue').textContent = formatCurrencyVND(totalRevenue);
       document.getElementById('statActiveCount').textContent = `${activeCount} gói đang chạy`;
+
       document.getElementById('statNetProfit').textContent = `+${formatCurrencyVND(netProfit)}`;
       document.getElementById('statProfitMargin').textContent = `Tỷ suất: ${margin}%`;
+
       document.getElementById('statUrgentCount').textContent = `${urgentCount} khách`;
+
       document.getElementById('statVipCount').textContent = `${vipCount} khách`;
       document.getElementById('statVipRevenue').textContent = `${formatCurrencyVND(vipRevenue)} doanh thu`;
+
       document.getElementById('statNewCount').textContent = `${newCount} khách`;
       document.getElementById('statNewRevenue').textContent = `${formatCurrencyVND(newRevenue)} doanh thu`;
     }
@@ -807,25 +1114,41 @@
     function getFilteredCustomers() {
       const search = (activeFilters.search || '').toLowerCase().trim();
       const type = activeFilters.type;
+      const pkgStatus = activeFilters.packageStatus || 'ALL';
       const expiry = activeFilters.expiry;
 
       return customers.filter(c => {
+        // Search
         if (search) {
           const matchName = (c.name || '').toLowerCase().includes(search);
           const matchPhone = (c.phone || '').includes(search);
           const matchPackage = (c.package_name || '').toLowerCase().includes(search);
           const matchSource = (c.channel_source || '').toLowerCase().includes(search);
           const matchContact = (c.contact_handle || '').toLowerCase().includes(search);
+          const matchSupplier = (c.supplier_source || '').toLowerCase().includes(search);
           const matchNotes = (c.notes || '').toLowerCase().includes(search);
-          if (!matchName && !matchPhone && !matchPackage && !matchSource && !matchContact && !matchNotes) return false;
+          if (!matchName && !matchPhone && !matchPackage && !matchSource && !matchContact && !matchSupplier && !matchNotes) {
+            return false;
+          }
         }
+
+        // Customer Type
         if (type !== 'ALL' && c.customer_type !== type) return false;
+
+        // Package Status
+        if (pkgStatus !== 'ALL') {
+          const currentStatus = c.package_status || 'Đang hoạt động';
+          if (currentStatus !== pkgStatus) return false;
+        }
+
+        // Expiry
         if (expiry !== 'ALL') {
           const exp = calculateExpiry(c.end_date);
           if (expiry === 'EXPIRING_SOON' && !exp.isExpiringSoon) return false;
           if (expiry === 'ACTIVE' && exp.isExpired) return false;
           if (expiry === 'EXPIRED' && !exp.isExpired) return false;
         }
+
         return true;
       });
     }
@@ -839,7 +1162,7 @@
           <tr>
             <td colspan="9" class="px-4 py-12 text-center text-slate-400">
               <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
-              <p class="font-medium">Không tìm thấy khách hàng nào phù hợp</p>
+              <p class="font-medium">Không tìm thấy khách hàng nào phù hợp với bộ lọc</p>
             </td>
           </tr>
         `;
@@ -847,8 +1170,10 @@
         return;
       }
 
-      let totalFilteredRevenue = 0, totalFilteredCost = 0, html = '';
+      let totalFilteredRevenue = 0;
+      let totalFilteredCost = 0;
 
+      let html = '';
       filtered.forEach(c => {
         const price = Number(c.price) || 0;
         const cost = Number(c.cost) || 0;
@@ -865,6 +1190,7 @@
           ? 'bg-rose-50/50 hover:bg-rose-100/60 border-l-4 border-l-rose-600' 
           : 'hover:bg-indigo-50/40';
 
+        // Phân loại badge
         let typeBadge = '';
         if (c.customer_type === 'VIP') {
           typeBadge = `<span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
@@ -882,8 +1208,22 @@
           </span>`;
         }
 
+        // Trạng thái gói badge nhỏ
+        let statusBadge = '';
+        const currentPkgStatus = c.package_status || 'Đang hoạt động';
+        if (currentPkgStatus === 'Tạm dừng') {
+          statusBadge = '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">Tạm dừng</span>';
+        } else if (currentPkgStatus === 'Hủy') {
+          statusBadge = '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-100 text-rose-800 border border-rose-200">Đã hủy</span>';
+        }
+
         html += `
-          <tr onclick="openOrderDetailModal('${c.id}')" class="cursor-pointer transition-all duration-150 group ${rowBg}" title="Nhấn để xem chi tiết">
+          <tr 
+            onclick="openOrderDetailModal('${c.id}')"
+            class="cursor-pointer transition-all duration-150 group ${rowBg}"
+            title="Nhấn để xem toàn bộ chi tiết đơn hàng"
+          >
+            <!-- Cột 1: Khách hàng & Nguồn -->
             <td class="px-4 py-3.5">
               <div class="font-bold text-slate-900 group-hover:text-rose-600 transition flex items-center gap-1.5">
                 <span>${escapeHtml(c.name)}</span>
@@ -894,12 +1234,24 @@
                   <i data-lucide="share-2" class="w-2.5 h-2.5 text-slate-400"></i>
                   <span>${escapeHtml(c.channel_source || 'Trực tiếp')}</span>
                 </span>
+                ${c.supplier_source ? `
+                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium" title="Nhà cung cấp">
+                    <i data-lucide="truck" class="w-2.5 h-2.5 text-slate-400"></i>
+                    <span class="max-w-[80px] truncate">${escapeHtml(c.supplier_source)}</span>
+                  </span>
+                ` : ''}
               </div>
             </td>
 
+            <!-- Cột 2: Kênh liên hệ -->
             <td class="px-4 py-3.5 whitespace-nowrap" onclick="event.stopPropagation()">
               <div class="space-y-1">
-                <button type="button" onclick="${contact.link ? `window.open('${contact.link}', '_blank')` : `copyReminder('${c.id}')`}" class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-xs font-semibold border transition active:scale-95 ${contact.colorClass}">
+                <button
+                  type="button"
+                  onclick="${contact.link ? `window.open('${contact.link}', '_blank')` : `copyReminder('${c.id}')`}"
+                  class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-xs font-semibold border transition active:scale-95 ${contact.colorClass}"
+                  title="${contact.link ? 'Mở chat' : 'Sao chép nhắc hẹn'}"
+                >
                   <i data-lucide="${contact.icon}" class="w-3.5 h-3.5 shrink-0"></i>
                   <span>${contact.label}</span>
                   ${contact.link ? '<i data-lucide="external-link" class="w-2.5 h-2.5 opacity-60 ml-0.5"></i>' : ''}
@@ -911,58 +1263,114 @@
               </div>
             </td>
 
+            <!-- Cột 3: Gói & Ghi chú -->
             <td class="px-4 py-3.5 max-w-xs">
-              <div class="font-semibold text-slate-800">${escapeHtml(c.package_name)}</div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-semibold text-slate-800">${escapeHtml(c.package_name)}</span>
+                ${statusBadge}
+                ${c.package_purpose && c.package_purpose !== 'Mua gói cước' ? `
+                  <span class="px-1.5 py-0.2 rounded text-[10px] bg-slate-100 text-slate-600 border border-slate-200">${escapeHtml(c.package_purpose)}</span>
+                ` : ''}
+              </div>
               ${c.notes ? `<p class="text-[11px] text-slate-400 truncate mt-0.5" title="${escapeHtml(c.notes)}">${escapeHtml(c.notes)}</p>` : ''}
             </td>
 
-            <td class="px-4 py-3.5 whitespace-nowrap">${typeBadge}</td>
-            <td class="px-4 py-3.5 font-bold text-slate-900 font-mono whitespace-nowrap">${formatCurrencyVND(price)}</td>
-            <td class="px-4 py-3.5 text-slate-500 font-mono whitespace-nowrap">${formatCurrencyVND(cost)}</td>
-            <td class="px-4 py-3.5 font-extrabold text-emerald-600 font-mono whitespace-nowrap">${profit >= 0 ? '+' : ''}${formatCurrencyVND(profit)}</td>
-
+            <!-- Cột 4: Phân loại -->
             <td class="px-4 py-3.5 whitespace-nowrap">
-              <div class="w-36 sm:w-44 space-y-1">
-                <div class="flex items-center justify-between text-[11px] leading-tight">
-                  <span class="inline-flex items-center gap-1 font-semibold ${energy.textColor}">
-                    <i data-lucide="zap" class="w-3 h-3 fill-current"></i>
-                    <span>${energy.statusLabel}</span>
-                  </span>
-                  <span class="font-mono font-bold text-xs ${isRedAlert ? 'text-rose-600 animate-pulse' : (exp.isExpired ? 'text-slate-400 line-through' : 'text-slate-700')}">
-                    ${exp.displayText}
+              ${typeBadge}
+            </td>
+
+            <!-- Cột 5: Giá bán -->
+            <td class="px-4 py-3.5 font-bold text-slate-900 font-mono whitespace-nowrap">
+              ${formatCurrencyVND(price)}
+            </td>
+
+            <!-- Cột 6: Giá vốn -->
+            <td class="px-4 py-3.5 text-slate-500 font-mono whitespace-nowrap">
+              ${formatCurrencyVND(cost)}
+            </td>
+
+            <!-- Cột 7: Lợi nhuận ròng -->
+            <td class="px-4 py-3.5 font-extrabold text-emerald-600 font-mono whitespace-nowrap">
+              ${profit >= 0 ? '+' : ''}${formatCurrencyVND(profit)}
+            </td>
+
+            <!-- Cột 8: THANH NĂNG LƯỢNG ĐẾM NGƯỢC (Tối giản: chỉ icon zap, % & thanh gradient) -->
+            <td class="px-4 py-3.5 whitespace-nowrap">
+              <div class="w-32 sm:w-36 space-y-1.5">
+                <div class="flex items-center justify-between text-xs font-mono font-bold leading-none">
+                  <div class="inline-flex items-center gap-1 ${energy.textColor}">
+                    <i data-lucide="zap" class="w-3.5 h-3.5 fill-current"></i>
+                    <span>${energy.percent}%</span>
+                  </div>
+                  <span class="text-[11px] font-semibold text-slate-500 font-sans">
+                    ${exp.daysLeft > 0 ? `${exp.daysLeft} ngày` : (exp.daysLeft === 0 ? 'Hết hôm nay' : 'Hết hạn')}
                   </span>
                 </div>
-                <div class="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/80 shadow-inner">
-                  <div class="h-full rounded-full bg-gradient-to-r ${energy.colorGradient} ${energy.glowClass} transition-all duration-700 relative" style="width: ${energy.percent}%">
+                <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/80 shadow-inner">
+                  <div 
+                    class="h-full rounded-full bg-gradient-to-r ${energy.colorGradient} ${energy.glowClass} transition-all duration-700 relative"
+                    style="width: ${energy.percent}%"
+                  >
                     <div class="absolute inset-0 bg-white/25 rounded-full"></div>
                   </div>
-                </div>
-                <div class="text-[10px] text-slate-400 flex items-center justify-between">
-                  <span>${formatDateVN(c.start_date)}</span>
-                  <span>→</span>
-                  <span class="${isRedAlert ? 'text-rose-600 font-semibold' : 'text-slate-600'}">${formatDateVN(c.end_date)}</span>
                 </div>
               </div>
             </td>
 
+            <!-- Cột 9: Thao tác -->
             <td class="px-4 py-3.5 text-right whitespace-nowrap" onclick="event.stopPropagation()">
               <div class="inline-flex items-center space-x-1">
-                <button type="button" onclick="openOrderDetailModal('${c.id}')" class="inline-flex items-center space-x-1 px-2 py-1 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition active:scale-95">
+                <!-- Nút Chi tiết -->
+                <button
+                  type="button"
+                  onclick="openOrderDetailModal('${c.id}')"
+                  class="inline-flex items-center space-x-1 px-2 py-1 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition active:scale-95"
+                  title="Xem chi tiết đơn hàng"
+                >
                   <i data-lucide="eye" class="w-3 h-3 text-slate-500"></i>
                   <span class="hidden lg:inline">Chi tiết</span>
                 </button>
-                <button type="button" onclick="copyReminder('${c.id}')" class="inline-flex items-center space-x-1 px-2.5 py-1 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-md transition active:scale-95">
+
+                <!-- Nút Nhắc Hạn -->
+                <button
+                  type="button"
+                  onclick="copyReminder('${c.id}')"
+                  class="inline-flex items-center space-x-1 px-2.5 py-1 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-md transition active:scale-95"
+                  title="Sao chép tin nhắn nhắc gia hạn"
+                >
                   <i data-lucide="copy" class="w-3 h-3"></i>
                   <span>Nhắc hẹn</span>
                 </button>
-                <button type="button" onclick="openRenewModal('${c.id}')" class="inline-flex items-center space-x-1 px-2.5 py-1 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-md transition active:scale-95">
+
+                <!-- Nút Gia Hạn -->
+                <button
+                  type="button"
+                  onclick="openRenewModal('${c.id}')"
+                  class="inline-flex items-center space-x-1 px-2.5 py-1 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-md transition active:scale-95"
+                  title="Gia hạn gói dịch vụ"
+                >
                   <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
                   <span>Gia hạn</span>
                 </button>
-                <button type="button" onclick="editCustomer('${c.id}')" class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-md transition active:scale-95">
+
+                <!-- Sửa -->
+                <button
+                  type="button"
+                  onclick="editCustomer('${c.id}')"
+                  class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-md transition active:scale-95"
+                  title="Sửa thông tin"
+                >
                   <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
                 </button>
-                <button type="button" onclick="deleteCustomer('${c.id}')" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-md transition active:scale-95">
+
+                <!-- Xóa -->
+                <button
+                  type="button"
+                  onclick="deleteCustomer('${c.id}')"
+                  class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-md transition active:scale-95"
+                  title="Xóa khách"
+                >
                   <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                 </button>
               </div>
@@ -984,10 +1392,15 @@
 
     function escapeHtml(str) {
       if (!str) return '';
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
-    // 5. SEARCH & FILTER
+    // 5. SEARCH & FILTER HANDLERS
     function handleSearch(val) {
       activeFilters.search = val;
       renderTable();
@@ -996,6 +1409,7 @@
 
     function handleFilterChange() {
       activeFilters.type = document.getElementById('filterCustomerType').value;
+      activeFilters.packageStatus = document.getElementById('filterPackageStatus') ? document.getElementById('filterPackageStatus').value : 'ALL';
       activeFilters.expiry = document.getElementById('filterExpiryStatus').value;
       renderTable();
       if (window.lucide) lucide.createIcons();
@@ -1012,13 +1426,16 @@
     function resetFilters() {
       document.getElementById('searchInput').value = '';
       document.getElementById('filterCustomerType').value = 'ALL';
+      if (document.getElementById('filterPackageStatus')) {
+        document.getElementById('filterPackageStatus').value = 'ALL';
+      }
       document.getElementById('filterExpiryStatus').value = 'ALL';
-      activeFilters = { search: '', type: 'ALL', expiry: 'ALL' };
+      activeFilters = { search: '', type: 'ALL', packageStatus: 'ALL', expiry: 'ALL' };
       renderTable();
       if (window.lucide) lucide.createIcons();
     }
 
-    // 6. POP-UP DETAIL
+    // 6. POP-UP CHI TIẾT ĐƠN HÀNG (ORDER DETAIL MODAL)
     function openOrderDetailModal(customerId) {
       const c = customers.find(item => item.id === customerId);
       if (!c) return;
@@ -1038,6 +1455,7 @@
       const totalDays = Math.max(1, Math.round((endMs - startMs) / (1000 * 60 * 60 * 24)));
       const daysUsed = Math.max(0, Math.min(totalDays, Math.round((nowMs - startMs) / (1000 * 60 * 60 * 24))));
 
+      // Huy hiệu type
       let typeBadge = '';
       if (c.customer_type === 'VIP') {
         typeBadge = '<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300">👑 VIP</span>';
@@ -1049,8 +1467,19 @@
       document.getElementById('detailBadgeType').innerHTML = typeBadge;
       document.getElementById('detailSubtitle').textContent = `ID: ${c.id} • Tạo ngày ${formatDateVN(c.created_at || c.start_date)}`;
 
+      // Trạng thái tag
       let statusTag = '';
-      if (exp.isExpiringSoon) {
+      if (c.package_status === 'Tạm dừng') {
+        statusTag = `<span class="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs bg-amber-100 text-amber-800 border border-amber-300 font-semibold">
+          <i data-lucide="pause-circle" class="w-3.5 h-3.5 text-amber-600"></i>
+          <span>Tạm dừng</span>
+        </span>`;
+      } else if (c.package_status === 'Hủy') {
+        statusTag = `<span class="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs bg-rose-100 text-rose-800 border border-rose-300 font-semibold">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600"></i>
+          <span>Đã hủy</span>
+        </span>`;
+      } else if (exp.isExpiringSoon) {
         statusTag = `<span class="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs bg-rose-100 text-rose-700 border border-rose-300 font-bold animate-pulse">
           <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-rose-600"></i>
           <span>${exp.displayText} (Khẩn cấp)</span>
@@ -1067,16 +1496,22 @@
         </span>`;
       }
 
+      // Modal body HTML
       const bodyHtml = `
+        <!-- BLOCK 1: GÓI DỊCH VỤ & THANH NĂNG LƯỢNG ĐẾM NGƯỢC -->
         <div class="bg-slate-50/80 rounded-xl p-4 border border-slate-200/80 space-y-3">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <div>
-              <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Gói Dịch Vụ Đăng Ký</span>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Gói Dịch Vụ Đăng Ký</span>
+                ${c.package_purpose ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">${escapeHtml(c.package_purpose)}</span>` : ''}
+              </div>
               <h4 class="text-lg font-extrabold text-slate-900 mt-0.5">${escapeHtml(c.package_name)}</h4>
             </div>
             <div>${statusTag}</div>
           </div>
 
+          <!-- Energy Bar -->
           <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs space-y-2">
             <div class="flex items-center justify-between text-xs font-semibold">
               <div class="flex items-center space-x-1.5">
@@ -1088,7 +1523,10 @@
             </div>
 
             <div class="h-3 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200 shadow-inner">
-              <div class="h-full rounded-full bg-gradient-to-r ${energy.colorGradient} ${energy.glowClass} transition-all duration-700 relative" style="width: ${energy.percent}%">
+              <div 
+                class="h-full rounded-full bg-gradient-to-r ${energy.colorGradient} ${energy.glowClass} transition-all duration-700 relative"
+                style="width: ${energy.percent}%"
+              >
                 <div class="absolute inset-0 bg-white/25 rounded-full"></div>
               </div>
             </div>
@@ -1113,6 +1551,7 @@
           ` : ''}
         </div>
 
+        <!-- BLOCK 2: KHÁCH HÀNG & PHƯƠNG THỨC LIÊN HỆ -->
         <div class="border border-slate-200 rounded-xl p-4 space-y-3">
           <h5 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center space-x-1.5">
             <i data-lucide="user" class="w-3.5 h-3.5 text-slate-500"></i>
@@ -1146,6 +1585,14 @@
             </div>
 
             <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+              <span class="text-slate-400 block text-[11px]">Nguồn hàng / Nhà cung cấp</span>
+              <div class="font-semibold text-slate-800 flex items-center space-x-1 mt-0.5">
+                <i data-lucide="truck" class="w-3 h-3 text-slate-400"></i>
+                <span>${escapeHtml(c.supplier_source || 'Chưa cập nhật')}</span>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100 sm:col-span-2">
               <span class="text-slate-400 block text-[11px]">Kênh liên hệ chính</span>
               <div class="flex items-center justify-between mt-0.5">
                 <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-xs font-semibold border ${contact.colorClass}">
@@ -1164,6 +1611,7 @@
           </div>
         </div>
 
+        <!-- BLOCK 3: HẠCH TOÁN TÀI CHÍNH & LỢI NHUẬN RÒNG -->
         <div class="border border-slate-200 rounded-xl p-4 bg-gradient-to-br from-white to-slate-50/60 space-y-3">
           <h5 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center space-x-1.5">
             <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-emerald-600"></i>
@@ -1187,6 +1635,21 @@
               <span class="text-[10px] text-emerald-600 font-semibold block">Tỷ suất: ${margin}%</span>
             </div>
           </div>
+
+          <!-- Thông tin giao dịch thanh toán -->
+          ${(c.payment_date || c.receiving_bank || c.receiving_account) ? `
+            <div class="mt-3 pt-3 border-t border-slate-200/80 text-xs flex flex-wrap items-center justify-between gap-2 bg-amber-50/50 p-2.5 rounded-lg border border-amber-200/60">
+              <div class="flex items-center gap-1.5 text-amber-900 font-semibold">
+                <i data-lucide="credit-card" class="w-3.5 h-3.5 text-amber-700"></i>
+                <span>Thanh toán:</span>
+              </div>
+              <div class="text-[11px] text-slate-700 flex flex-wrap gap-x-3 gap-y-1">
+                ${c.payment_date ? `<span>Ngày TT: <strong>${formatDateVN(c.payment_date)}</strong></span>` : ''}
+                ${c.receiving_bank ? `<span>Ngân hàng: <strong>${escapeHtml(c.receiving_bank)}</strong></span>` : ''}
+                ${c.receiving_account ? `<span>Số TK: <strong class="font-mono">${escapeHtml(c.receiving_account)}</strong></span>` : ''}
+              </div>
+            </div>
+          ` : ''}
         </div>
       `;
 
@@ -1224,9 +1687,23 @@
     }
 
     // 7. CUSTOMER MODAL (ADD / EDIT)
+    function handleBankPresetChange(val) {
+      const bankInput = document.getElementById('formReceivingBank');
+      if (val !== 'Khác') {
+        bankInput.value = val;
+      } else {
+        bankInput.value = '';
+        bankInput.focus();
+      }
+    }
+
     function openCustomerModal(id = null) {
       const modal = document.getElementById('customerModal');
       const title = document.getElementById('customerModalTitle');
+
+      // Populate presets in modal before opening
+      populatePresetDatalists();
+      renderPresetPackageButtons();
 
       if (id) {
         const c = customers.find(item => item.id === id);
@@ -1238,10 +1715,25 @@
         document.getElementById('formChannelSource').value = c.channel_source || '';
         document.getElementById('formContactChannel').value = c.contact_channel || 'Zalo';
         document.getElementById('formContactHandle').value = c.contact_handle || '';
+        document.getElementById('formSupplierSource').value = c.supplier_source || '';
         document.getElementById('formPackageName').value = c.package_name;
+        document.getElementById('formPackagePurpose').value = c.package_purpose || 'Mua gói cước';
+        document.getElementById('formPackageStatus').value = c.package_status || 'Đang hoạt động';
         document.getElementById('formCustomerType').value = c.customer_type || 'MOI';
         document.getElementById('formPrice').value = c.price || '';
         document.getElementById('formCost').value = c.cost !== undefined ? c.cost : '';
+        document.getElementById('formPaymentDate').value = c.payment_date || c.start_date || getTodayString();
+        
+        const bank = c.receiving_bank || 'TP Bank';
+        document.getElementById('formReceivingBank').value = bank;
+        const presetBankSelect = document.getElementById('formReceivingBankPreset');
+        if (['TP Bank', 'MoMo', 'MB Bank', 'Vietcombank'].includes(bank)) {
+          presetBankSelect.value = bank;
+        } else {
+          presetBankSelect.value = 'Khác';
+        }
+
+        document.getElementById('formReceivingAccount').value = c.receiving_account || '';
         document.getElementById('formStartDate').value = c.start_date;
         document.getElementById('formEndDate').value = c.end_date;
         document.getElementById('formNotes').value = c.notes || '';
@@ -1250,13 +1742,20 @@
         document.getElementById('formCustomerId').value = '';
         document.getElementById('formName').value = '';
         document.getElementById('formPhone').value = '';
-        document.getElementById('formChannelSource').value = 'Fanpage Facebook';
+        document.getElementById('formChannelSource').value = presetChannels.length > 0 ? presetChannels[0] : 'Fanpage Facebook';
         document.getElementById('formContactChannel').value = 'Zalo';
         document.getElementById('formContactHandle').value = '';
+        document.getElementById('formSupplierSource').value = presetSuppliers.length > 0 ? presetSuppliers[0] : '';
         document.getElementById('formPackageName').value = '';
+        document.getElementById('formPackagePurpose').value = 'Mua gói cước';
+        document.getElementById('formPackageStatus').value = 'Đang hoạt động';
         document.getElementById('formCustomerType').value = 'MOI';
         document.getElementById('formPrice').value = '';
         document.getElementById('formCost').value = '';
+        document.getElementById('formPaymentDate').value = getTodayString();
+        document.getElementById('formReceivingBankPreset').value = 'TP Bank';
+        document.getElementById('formReceivingBank').value = 'TP Bank';
+        document.getElementById('formReceivingAccount').value = '';
         document.getElementById('formStartDate').value = getTodayString();
         document.getElementById('formEndDate').value = getFutureDate(30);
         document.getElementById('formNotes').value = '';
@@ -1288,70 +1787,110 @@
       endInput.value = base.toISOString().split('T')[0];
     }
 
-    async function handleSaveCustomer(e) {
+    function handleSaveCustomer(e) {
       e.preventDefault();
-      const btn = document.getElementById('btnSaveCustomer');
-      btn.innerText = 'Đang lưu Cloud...';
-      btn.disabled = true;
-
       const id = document.getElementById('formCustomerId').value;
       const name = document.getElementById('formName').value.trim();
       const phone = document.getElementById('formPhone').value.trim();
       const channel_source = document.getElementById('formChannelSource').value.trim() || 'Trực tiếp';
       const contact_channel = document.getElementById('formContactChannel').value;
       const contact_handle = document.getElementById('formContactHandle').value.trim() || phone;
+      const supplier_source = document.getElementById('formSupplierSource').value.trim();
       const package_name = document.getElementById('formPackageName').value.trim();
+      const package_purpose = document.getElementById('formPackagePurpose').value;
+      const package_status = document.getElementById('formPackageStatus').value;
       const customer_type = document.getElementById('formCustomerType').value;
       const price = Number(document.getElementById('formPrice').value) || 0;
       const cost = Number(document.getElementById('formCost').value) || 0;
+      const payment_date = document.getElementById('formPaymentDate').value || document.getElementById('formStartDate').value;
+      const receiving_bank = document.getElementById('formReceivingBank').value.trim();
+      const receiving_account = document.getElementById('formReceivingAccount').value.trim();
       const start_date = document.getElementById('formStartDate').value;
       const end_date = document.getElementById('formEndDate').value;
       const notes = document.getElementById('formNotes').value.trim();
 
-      const payload = {
-        name,
-        service: package_name,
-        customer_type,
-        price,
-        end_date
-      };
-
-      try {
-        if (id) {
-          const { error } = await supabaseClient.from('customers').update(payload).eq('id', id);
-          if (error) throw error;
-          showToast(`Đã cập nhật khách hàng "${name}" trên Cloud!`);
-        } else {
-          const { error } = await supabaseClient.from('customers').insert([payload]);
-          if (error) throw error;
-          showToast(`Đã thêm khách hàng "${name}" lên Cloud!`);
-        }
-        await loadCustomersFromCloud();
-        closeCustomerModal();
-      } catch (err) {
-        alert("Lỗi Supabase: " + err.message);
-      } finally {
-        btn.innerText = 'Lưu Lên Cloud';
-        btn.disabled = false;
+      // If supplier or channel is new, auto-save to presets
+      if (supplier_source && !presetSuppliers.includes(supplier_source)) {
+        presetSuppliers.push(supplier_source);
+        savePresetsLocal();
       }
+      if (channel_source && !presetChannels.includes(channel_source)) {
+        presetChannels.push(channel_source);
+        savePresetsLocal();
+      }
+
+      if (id) {
+        // Update
+        const idx = customers.findIndex(c => c.id === id);
+        if (idx !== -1) {
+          customers[idx] = {
+            ...customers[idx],
+            name,
+            phone,
+            channel_source,
+            contact_channel,
+            contact_handle,
+            supplier_source,
+            package_name,
+            package_purpose,
+            package_status,
+            customer_type,
+            price,
+            cost,
+            payment_date,
+            receiving_bank,
+            receiving_account,
+            start_date,
+            end_date,
+            notes
+          };
+          showToast(`Đã cập nhật khách hàng "${name}"`);
+        }
+      } else {
+        // Create
+        const newCust = {
+          id: 'cust-' + Date.now(),
+          name,
+          phone,
+          channel_source,
+          contact_channel,
+          contact_handle,
+          supplier_source,
+          package_name,
+          package_purpose,
+          package_status,
+          customer_type,
+          price,
+          cost,
+          payment_date,
+          receiving_bank,
+          receiving_account,
+          start_date,
+          end_date,
+          notes,
+          created_at: getTodayString()
+        };
+        customers.unshift(newCust);
+        showToast(`Đã thêm khách hàng "${name}"`);
+      }
+
+      saveCustomersLocal();
+      renderAll();
+      closeCustomerModal();
     }
 
     function editCustomer(id) {
       openCustomerModal(id);
     }
 
-    async function deleteCustomer(id) {
+    function deleteCustomer(id) {
       const c = customers.find(item => item.id === id);
       if (!c) return;
-      if (confirm(`Bạn có chắc muốn xóa khách hàng "${c.name}" trên Supabase Cloud?`)) {
-        try {
-          const { error } = await supabaseClient.from('customers').delete().eq('id', id);
-          if (error) throw error;
-          showToast(`Đã xóa khách hàng "${c.name}" trên Cloud!`);
-          await loadCustomersFromCloud();
-        } catch (err) {
-          alert("Lỗi khi xóa: " + err.message);
-        }
+      if (confirm(`Bạn có chắc muốn xóa khách hàng "${c.name}"?`)) {
+        customers = customers.filter(item => item.id !== id);
+        saveCustomersLocal();
+        renderAll();
+        showToast(`Đã xóa khách hàng "${c.name}"`);
       }
     }
 
@@ -1369,9 +1908,11 @@
       document.getElementById('renewPackageName').textContent = c.package_name;
       document.getElementById('renewOldEndDate').textContent = formatDateVN(c.end_date);
 
+      // Default: +1 month from current end_date (or today if expired)
       const baseDate = new Date(c.end_date) < new Date() ? new Date() : new Date(c.end_date);
       baseDate.setMonth(baseDate.getMonth() + 1);
       document.getElementById('renewNewEndDate').value = baseDate.toISOString().split('T')[0];
+
       document.getElementById('renewPrice').value = c.price || '';
       document.getElementById('renewCost').value = c.cost !== undefined ? c.cost : '';
 
@@ -1393,34 +1934,28 @@
       document.getElementById('renewNewEndDate').value = baseDate.toISOString().split('T')[0];
     }
 
-    async function handleConfirmRenew(e) {
+    function handleConfirmRenew(e) {
       e.preventDefault();
       if (!currentRenewCustomer) return;
-      const btn = document.getElementById('btnConfirmRenew');
-      btn.innerText = 'Đang gia hạn...';
-      btn.disabled = true;
-
       const id = currentRenewCustomer.id;
       const newEndDate = document.getElementById('renewNewEndDate').value;
       const addPrice = Number(document.getElementById('renewPrice').value) || 0;
+      const addCost = Number(document.getElementById('renewCost').value) || 0;
 
-      try {
-        const currentPrice = Number(currentRenewCustomer.price) || 0;
-        const { error } = await supabaseClient.from('customers').update({
+      const idx = customers.findIndex(c => c.id === id);
+      if (idx !== -1) {
+        customers[idx] = {
+          ...customers[idx],
           end_date: newEndDate,
-          price: currentPrice + addPrice
-        }).eq('id', id);
-
-        if (error) throw error;
-        showToast(`Đã gia hạn thành công cho "${currentRenewCustomer.name}"!`);
-        await loadCustomersFromCloud();
-        closeRenewModal();
-      } catch (err) {
-        alert("Lỗi gia hạn: " + err.message);
-      } finally {
-        btn.innerText = 'Xác Nhận Gia Hạn';
-        btn.disabled = false;
+          price: (Number(customers[idx].price) || 0) + addPrice,
+          cost: (Number(customers[idx].cost) || 0) + addCost
+        };
+        saveCustomersLocal();
+        renderAll();
+        showToast(`Đã gia hạn thành công cho "${customers[idx].name}" đến ${formatDateVN(newEndDate)}!`);
       }
+
+      closeRenewModal();
     }
 
     // 9. UTILITY REMINDERS & TOASTS
@@ -1453,9 +1988,314 @@
       }, 2500);
     }
 
+    // 10. SUPABASE CONFIGURATION MODAL
+    function openConfigModal() {
+      const url = localStorage.getItem('tbcshop_supabase_url') || '';
+      const key = localStorage.getItem('tbcshop_supabase_key') || '';
+      document.getElementById('cfgSupabaseUrl').value = url;
+      document.getElementById('cfgSupabaseKey').value = key;
+      document.getElementById('configModal').classList.remove('hidden');
+      document.getElementById('configModal').classList.add('flex');
+    }
+
+    function closeConfigModal() {
+      document.getElementById('configModal').classList.add('hidden');
+      document.getElementById('configModal').classList.remove('flex');
+    }
+
+    function saveSupabaseConfig() {
+      const url = document.getElementById('cfgSupabaseUrl').value.trim();
+      const key = document.getElementById('cfgSupabaseKey').value.trim();
+      localStorage.setItem('tbcshop_supabase_url', url);
+      localStorage.setItem('tbcshop_supabase_key', key);
+
+      initSupabase();
+      closeConfigModal();
+      showToast('Đã lưu cấu hình Supabase!');
+    }
+
+    function initSupabase() {
+      const url = localStorage.getItem('tbcshop_supabase_url');
+      const key = localStorage.getItem('tbcshop_supabase_key');
+      const dot = document.getElementById('supabaseStatusDot');
+      const text = document.getElementById('supabaseStatusText');
+
+      if (url && key && window.supabase) {
+        try {
+          supabaseClient = window.supabase.createClient(url, key);
+          dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
+          text.textContent = 'Supabase Cloud';
+        } catch (e) {
+          dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
+          text.textContent = 'Supabase (Lỗi)';
+        }
+      } else {
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-400';
+        text.textContent = 'LocalStorage';
+      }
+    }
+
+    // 11. SETTINGS MODAL & PRESETS MANAGEMENT (Suppliers, Channels, Quick Packages)
+    function loadPresets() {
+      const s = localStorage.getItem('tbcshop_preset_suppliers');
+      const c = localStorage.getItem('tbcshop_preset_channels');
+      const p = localStorage.getItem('tbcshop_preset_packages');
+
+      presetSuppliers = s ? JSON.parse(s) : [...DEFAULT_SUPPLIERS];
+      presetChannels = c ? JSON.parse(c) : [...DEFAULT_CHANNELS];
+      presetPackages = p ? JSON.parse(p) : [...DEFAULT_PACKAGES];
+
+      populatePresetDatalists();
+      renderPresetPackageButtons();
+    }
+
+    function savePresetsLocal() {
+      localStorage.setItem('tbcshop_preset_suppliers', JSON.stringify(presetSuppliers));
+      localStorage.setItem('tbcshop_preset_channels', JSON.stringify(presetChannels));
+      localStorage.setItem('tbcshop_preset_packages', JSON.stringify(presetPackages));
+      populatePresetDatalists();
+      renderPresetPackageButtons();
+    }
+
+    function openSettingsModal(defaultTab = 'suppliers') {
+      loadPresets();
+      switchSettingsTab(defaultTab);
+      document.getElementById('settingsModal').classList.remove('hidden');
+      document.getElementById('settingsModal').classList.add('flex');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settingsModal').classList.add('hidden');
+      document.getElementById('settingsModal').classList.remove('flex');
+    }
+
+    function switchSettingsTab(tab) {
+      const tabSuppliers = document.getElementById('tabContentSuppliers');
+      const tabChannels = document.getElementById('tabContentChannels');
+      const tabPackages = document.getElementById('tabContentPackages');
+
+      const btnSuppliers = document.getElementById('tabBtnSuppliers');
+      const btnChannels = document.getElementById('tabBtnChannels');
+      const btnPackages = document.getElementById('tabBtnPackages');
+
+      // Hide all
+      tabSuppliers.classList.add('hidden');
+      tabChannels.classList.add('hidden');
+      tabPackages.classList.add('hidden');
+
+      btnSuppliers.className = 'px-4 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition';
+      btnChannels.className = 'px-4 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition';
+      btnPackages.className = 'px-4 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition';
+
+      if (tab === 'suppliers') {
+        tabSuppliers.classList.remove('hidden');
+        btnSuppliers.className = 'px-4 py-2 border-b-2 border-rose-600 text-rose-600 font-bold transition';
+        renderSuppliersTabList();
+      } else if (tab === 'channels') {
+        tabChannels.classList.remove('hidden');
+        btnChannels.className = 'px-4 py-2 border-b-2 border-rose-600 text-rose-600 font-bold transition';
+        renderChannelsTabList();
+      } else if (tab === 'packages') {
+        tabPackages.classList.remove('hidden');
+        btnPackages.className = 'px-4 py-2 border-b-2 border-rose-600 text-rose-600 font-bold transition';
+        renderPackagesTabList();
+      }
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // Suppliers Tab Management
+    function renderSuppliersTabList() {
+      const listEl = document.getElementById('suppliersList');
+      if (presetSuppliers.length === 0) {
+        listEl.innerHTML = '<p class="text-xs text-slate-400 py-3 text-center">Chưa có nhà cung cấp nào được lưu.</p>';
+        return;
+      }
+
+      listEl.innerHTML = presetSuppliers.map((s, idx) => `
+        <div class="flex items-center justify-between p-2.5 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition text-xs">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="truck" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span class="font-semibold text-slate-800">${escapeHtml(s)}</span>
+          </div>
+          <button type="button" onclick="deleteSupplierPreset(${idx})" class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition" title="Xóa NCC">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      `).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function addSupplierPreset() {
+      const input = document.getElementById('newSupplierInput');
+      const val = input.value.trim();
+      if (!val) {
+        showToast('Vui lòng nhập tên nhà cung cấp!');
+        return;
+      }
+      if (presetSuppliers.includes(val)) {
+        showToast('Nhà cung cấp này đã có sẵn trong danh sách!');
+        return;
+      }
+      presetSuppliers.push(val);
+      savePresetsLocal();
+      input.value = '';
+      renderSuppliersTabList();
+      showToast(`Đã thêm nhà cung cấp "${val}"`);
+    }
+
+    function deleteSupplierPreset(idx) {
+      const item = presetSuppliers[idx];
+      presetSuppliers.splice(idx, 1);
+      savePresetsLocal();
+      renderSuppliersTabList();
+      showToast(`Đã xóa nhà cung cấp "${item}"`);
+    }
+
+    // Channels Tab Management
+    function renderChannelsTabList() {
+      const listEl = document.getElementById('channelsList');
+      if (presetChannels.length === 0) {
+        listEl.innerHTML = '<p class="text-xs text-slate-400 py-3 text-center">Chưa có kênh nguồn khách nào được lưu.</p>';
+        return;
+      }
+
+      listEl.innerHTML = presetChannels.map((c, idx) => `
+        <div class="flex items-center justify-between p-2.5 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition text-xs">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="share-2" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span class="font-semibold text-slate-800">${escapeHtml(c)}</span>
+          </div>
+          <button type="button" onclick="deleteChannelPreset(${idx})" class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition" title="Xóa Kênh">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      `).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function addChannelPreset() {
+      const input = document.getElementById('newChannelInput');
+      const val = input.value.trim();
+      if (!val) {
+        showToast('Vui lòng nhập tên kênh nguồn!');
+        return;
+      }
+      if (presetChannels.includes(val)) {
+        showToast('Kênh nguồn này đã có sẵn trong danh sách!');
+        return;
+      }
+      presetChannels.push(val);
+      savePresetsLocal();
+      input.value = '';
+      renderChannelsTabList();
+      showToast(`Đã thêm kênh "${val}"`);
+    }
+
+    function deleteChannelPreset(idx) {
+      const item = presetChannels[idx];
+      presetChannels.splice(idx, 1);
+      savePresetsLocal();
+      renderChannelsTabList();
+      showToast(`Đã xóa kênh "${item}"`);
+    }
+
+    // Quick Packages Tab Management
+    function renderPackagesTabList() {
+      const listEl = document.getElementById('packagesList');
+      if (presetPackages.length === 0) {
+        listEl.innerHTML = '<p class="text-xs text-slate-400 py-3 text-center">Chưa có gói mẫu nào.</p>';
+        return;
+      }
+
+      listEl.innerHTML = presetPackages.map((p, idx) => `
+        <div class="p-3 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition text-xs flex items-center justify-between">
+          <div class="space-y-0.5">
+            <div class="font-bold text-slate-900">${escapeHtml(p.name)}</div>
+            <div class="text-[11px] text-slate-500 font-mono">
+              Thời hạn: <strong>${p.months} tháng</strong> • Bán: <strong class="text-slate-800">${formatCurrencyVND(p.price)}</strong> • Vốn: <strong class="text-slate-600">${formatCurrencyVND(p.cost)}</strong>
+            </div>
+          </div>
+          <button type="button" onclick="deletePackagePreset(${idx})" class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition" title="Xóa gói mẫu">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      `).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function addPackagePreset() {
+      const name = document.getElementById('newPkgName').value.trim();
+      const months = Number(document.getElementById('newPkgMonths').value) || 1;
+      const price = Number(document.getElementById('newPkgPrice').value) || 0;
+      const cost = Number(document.getElementById('newPkgCost').value) || 0;
+
+      if (!name) {
+        showToast('Vui lòng nhập tên gói mẫu!');
+        return;
+      }
+
+      presetPackages.push({ name, months, price, cost });
+      savePresetsLocal();
+
+      document.getElementById('newPkgName').value = '';
+      document.getElementById('newPkgMonths').value = '';
+      document.getElementById('newPkgPrice').value = '';
+      document.getElementById('newPkgCost').value = '';
+
+      renderPackagesTabList();
+      showToast(`Đã thêm gói mẫu "${name}"`);
+    }
+
+    function deletePackagePreset(idx) {
+      const item = presetPackages[idx];
+      presetPackages.splice(idx, 1);
+      savePresetsLocal();
+      renderPackagesTabList();
+      showToast(`Đã xóa gói mẫu "${item.name}"`);
+    }
+
+    // Populate Datalists & Quick Preset Buttons in Customer Modal
+    function populatePresetDatalists() {
+      const suppliersDatalist = document.getElementById('presetSuppliersList');
+      if (suppliersDatalist) {
+        suppliersDatalist.innerHTML = presetSuppliers.map(s => `<option value="${escapeHtml(s)}"></option>`).join('');
+      }
+
+      const channelsDatalist = document.getElementById('presetChannelsList');
+      if (channelsDatalist) {
+        channelsDatalist.innerHTML = presetChannels.map(c => `<option value="${escapeHtml(c)}"></option>`).join('');
+      }
+    }
+
+    function renderPresetPackageButtons() {
+      const container = document.getElementById('presetPackagesContainer');
+      if (!container) return;
+
+      if (presetPackages.length === 0) {
+        container.innerHTML = '<span class="text-xs text-slate-400 col-span-3">Chưa có gói mẫu nào. Nhấn "Quản lý gói mẫu" để thêm.</span>';
+        return;
+      }
+
+      container.innerHTML = presetPackages.map(p => `
+        <button
+          type="button"
+          onclick="selectPreset('${escapeHtml(p.name)}', ${p.price}, ${p.cost}, ${p.months})"
+          class="preset-btn px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-slate-50 hover:bg-rose-50 hover:border-rose-300 text-left transition truncate"
+          title="${escapeHtml(p.name)}: Bán ${formatCurrencyVND(p.price)} / Vốn ${formatCurrencyVND(p.cost)} (${p.months}T)"
+        >
+          <span class="font-semibold text-slate-800 block truncate">${escapeHtml(p.name)}</span>
+          <span class="text-[10px] text-slate-500 font-mono">${formatCurrencyVND(p.price)} • ${p.months}T</span>
+        </button>
+      `).join('');
+    }
+
     // ON PAGE LOAD
     window.addEventListener('DOMContentLoaded', () => {
-      loadCustomersFromCloud();
+      loadPresets();
+      initSupabase();
+      loadCustomers();
     });
   </script>
 </body>
